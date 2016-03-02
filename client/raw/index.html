@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1">	
+	<title>webmqtt</title>
+	<script src="./browserMqtt.js"></script>
+	<style type="text/css" media="screen">
+		#temp1 {
+			font-size: 2em;
+		}		
+	</style>	
+</head>
+<body>
+	<h1>read and change device</h1>
+	<span  id="temp1"></span><br>
+	roof heater on  ? <span id='lue'></span><br>
+	<button id="button" onclick="uclicked()">toggle device</button>
+	<button id="button2" onclick="empty()">empty eeprom</button>
+	<script>
+		const deviceId ='CYURD001'
+		const statu = deviceId+'/status'
+		const cmd = deviceId +'/cmd'
+		var client = mqtt.connect('ws://10.0.1.104:3333')
+
+		var onoff = 1
+		function uclicked(){
+			//document.getElementById('lue').innerHTML=onoff
+			onoff=!onoff;
+			var thecmd =  "{\"heat\":"+onoff*1+",\"src\":1,\"empty\":0}"
+			console.log(thecmd);
+			client.publish(cmd, thecmd)
+		}
+		function empty(){
+			var thecmd =  "{\"heat\":"+onoff*1+",\"src\":1,\"empty\":1}"
+			console.log(thecmd);
+			client.publish(cmd, thecmd)			
+		}
+		client.on('connect', function(){
+			console.log('maybe connected')
+			client.subscribe(statu) 
+			client.on('message', function(topic, payload) {
+				var pls = payload.toString()
+				var plo = JSON.parse(pls)
+				console.log(plo)
+				console.log('['+topic+'] '+payload.toString())
+				document.getElementById('lue').innerHTML=plo.heat
+				document.getElementById('temp1').innerHTML=plo.temp1
+			});	
+			client.publish('presence', 'Web Client is alive.. Test Ping! ');
+		});
+	</script>
+</body>
+</html>
