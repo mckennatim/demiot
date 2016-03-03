@@ -45,23 +45,41 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Navigo = __webpack_require__(1)
-	//import Navigo from 'navigo'
 
-	var router = new Navigo();
+	var router;
+	var routing = function (mode) {
+	  router = new Navigo(null, mode === 'hash');
+	  router.on({
+	  	'reset': function(){
+				console.log('am reset')
+	  	},
+	  	'graph/:id': function(){
+				console.log(`am graphing ${params.id} `)
+	  	},
+	  	'adj': function(){
+				setContent('adj')
+	  	},
+	  	'selsen': function(){
+				setContent('selsen')
+	  	}
+	  })
+	  router.on(function(){
+	  	console.log('at /')
+	  })
+	}
 
 
-	router.on('/reset', function(){
-		console.log('am reset')
-	})
-	router.on('/graph/:id', function(params){
-		console.log(`am graphing ${params.id} `)
-	})
-	router.on('/adj', function(){
-		Adj()
-	})
-	router.on('/selsen', function(){
-		console.log('am selsen')
-	})
+	const el=(sel)=>document.querySelector(sel)
+
+	// el('#button').addEventListener('click', function(){
+	// 	uclicked()
+	// })
+
+	const setContent=(id, content)=>{
+	 	//console.log('setting content')
+	 	//console.log(el('#templ-'+id).innerHTML)
+	 	el('#app').innerHTML = el('#templ-'+id).innerHTML
+	}
 
 	const Adj = function(){
 		console.log('in adjusting')
@@ -99,15 +117,12 @@
 		client.publish('presence', 'Web Client is alive.. Test Ping! ');
 	});
 
-	const adj = (
-	`<div id="main">
-			<h1>read and change device</h1>
-			<span  id="temp1"></span><br>
-			roof heater on  ? <span id='lue'></span><br>
-			<button id="button" onclick="uclicked()">toggle device</button>
-		</div>`
+	var init = function () {
+	  routing('hash');
+	};
 
-	)
+	window.onload = init;
+
 
 /***/ },
 /* 1 */
