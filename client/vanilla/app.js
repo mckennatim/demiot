@@ -1,42 +1,45 @@
+console.log('stuff after ')
 var Navigo = require('navigo')
 
 var router;
 var routing = function (mode) {
   router = new Navigo(null, mode === 'hash');
   router.on({
-  	'reset': function(){
-			console.log('am reset')
-  	},
-  	'graph/:id': function(){
+  	'reset': ()=>Reset(),
+  	'graph/:id': function(params){
 			console.log(`am graphing ${params.id} `)
   	},
-  	'adj': function(){
-			setContent('adj')
-  	},
-  	'selsen': function(){
-			setContent('selsen')
-  	}
+  	'adj/:id': (params)=>Adj(params.id),
+  	'selsen': ()=>Selsen(),
   })
   router.on(function(){
   	console.log('at /')
   })
 }
 
-
 const el=(sel)=>document.querySelector(sel)
 
-// el('#button').addEventListener('click', function(){
-// 	uclicked()
-// })
-
-const setContent=(id, content)=>{
- 	//console.log('setting content')
- 	//console.log(el('#templ-'+id).innerHTML)
- 	el('#app').innerHTML = el('#templ-'+id).innerHTML
+const Adj = function(id){
+	let tstr = generateTemplateString(el('#templ-adj').innerHTML)
+	let templ = tstr({dogname: 'Fritz'})
+	el('#app').innerHTML =templ
+	el('#button').addEventListener('click', function(){
+		onoff=!onoff;
+		var thecmd =  "{\"heat\":"+onoff*1+",\"src\":1,\"empty\":0}"
+		console.log(thecmd);
+		client.publish(cmd, thecmd)
+	})	
+}
+const Selsen = function(){
+	let tstr = generateTemplateString(el('#templ-selsen').innerHTML)
+	let templ = tstr({cat: 'Mabibi'})
+	el('#app').innerHTML =templ
 }
 
-const Adj = function(){
-	console.log('in adjusting')
+const Reset = function(){
+	let tstr = generateTemplateString(el('#templ-reset').innerHTML)
+	let templ = tstr()
+	el('#app').innerHTML =templ
 }
 
 const deviceId ='CYURD001'
@@ -74,5 +77,24 @@ client.on('connect', function(){
 var init = function () {
   routing('hash');
 };
+
+var generateTemplateString = (function(){
+  var cache = {};
+  function generateTemplate(template){
+    var fn = cache[template];
+    if (!fn){
+      // Replace ${expressions} (etc) with ${map.expressions}.
+      var sanitized = template
+        .replace(/\$\{([\s]*[^;\s]+[\s]*)\}/g, function(_, match){
+            return `\$\{map.${match.trim()}\}`;
+        })
+        // Afterwards, replace anything that's not ${map.expressions}' (etc) with a blank string.
+        .replace(/(\$\{(?!map\.)[^}]+\})/g, '');
+      fn = Function('map', `return \`${sanitized}\``);
+    }
+    return fn;
+  };
+return generateTemplate;
+})();
 
 window.onload = init;

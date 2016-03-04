@@ -49,3 +49,4 @@ webpack is installed and `webpack --watch` succeeds the webpack.config.js is
 When I look at the page console.log is working and `el('span').innerHTML='started up'` works but when I push the button I get `Uncaught ReferenceError: uclicked is not defined` 
 
 If I replace `<script src="./bundle.js"></script>` with `<script src="./app.js"></script>` and bypass webpack the button clicks fine. Why doesn't this basic webpack setup work?
+

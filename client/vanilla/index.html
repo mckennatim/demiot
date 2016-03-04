@@ -37,17 +37,19 @@
 	</script>
 
 	<script type="text/content" id="templ-adj">
-		<div>
-			<h1>read and change device</h1>
+		<div >
+			<h4>read and change device</h4>
+			my dog is ${dogname} <br>
 			<span  id="temp1"></span><br>
 			roof heater on  ? <span id='lue'></span><br>
-			<button id="button" onclick="uclicked()">toggle device</button>
+			<button id="button">toggle device</button>
 		</div>		
 	</script>
 
 	<script type="text/content" id="templ-selsen">
 		<div>
 			<h4>Select Sensors</h4>
+			The cat is ${cat}
 			<ul>
 				<li>sensor1</li>
 				<li>sensor2</li>
@@ -55,8 +57,20 @@
 		</div>		
 	</script>
 
-	<script type="text/content" id="templ-empty">
+	<template id="tplt-selsen">
+		<div>
+			<h4>Select Sensors</h4>
+			The cat is ${cat}
+			<ul>
+				<li>sensor1</li>
+				<li>sensor2</li>
+			</ul>
+		</div>		
+	</template>
+	
+	<script type="text/content" id="templ-reset">
 		<div id="empty">
+			<h4>Reset Wemos</h4>
 			<button id="button2" onclick="empty()">empty eeprom</button>	
 		</div>		
 	</script>
