@@ -6,18 +6,12 @@
 #include <ArduinoJson.h>
 #include <ESP8266WebServer.h>
 
-#define deviceId "CYURD001"
-#define cmd "CYURD001/cmd"
-
-#define mqtt_server "10.0.1.104"
 #define HOAH 14
 #define HOAA 13
 #define ALED 5
 #define CMD 12
 #define ADC 0
 #define ONE_WIRE_BUS 4  // DS18B20 pin
-#define TEMP_MAX 85 // DS18B20 pin
-#define TEMP_MIN 75  // DS18B20 pin
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature DS18B20(&oneWire);
 
@@ -27,6 +21,20 @@ String content;
 int statusCode;
 const char* ssid = "bobbles";
 const char* passphrase = "test";
+const char* mqtt_server="10.0.1.104";
+const char* deviceId="CYURD001";
+const char* cmd="CYURD001/cmd";
+int TEMP_MAX = 85;
+int TEMP_MIN = 75;
+char topicIn[16];
+char payloadIn[80];
+int newmail = 0;
+int lenIn;
+char incoming[80];
+int relay;
+char c;
+int oldLed;
+int autom = 1;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -87,7 +95,6 @@ void launchWeb(int webtype) {
   Serial.println("AP started");
   Serial.print("SoftAP IP: ");
   Serial.println(WiFi.softAPIP());
-  // Start the server
   createConfigServer(webtype);
   server.begin();
   Serial.println("Server started"); 
@@ -108,7 +115,6 @@ void setupAP(void) {
     Serial.println(" networks found");
     for (int i = 0; i < n; ++i)
      {
-      // Print SSID and RSSI for each network found
       Serial.print(i + 1);
       Serial.print(": ");
       Serial.print(WiFi.SSID(i));
@@ -185,23 +191,25 @@ void setup_wifi() {
   }
 }
 
-char incoming[40];
-int relay;
-char c;
-int oldLed;
-
 void callback(char* topic, byte* payload, unsigned int length) {
-  Serial.print("Message arrived [");
-  Serial.print(topic);
-  Serial.print("] ");
+  for (int i=0;i<strlen(topic);i++) {
+    c = topic[i];
+    topicIn[i] = c;
+  }
+  topicIn[strlen(topic)] = '\0';  
   for (int i=0;i<length;i++) {
     c = (char)payload[i];
     incoming[i] = c;
   }
   incoming[length] = '\0';
-  String sinc = String(incoming).c_str();  
+  strncpy(payloadIn, incoming, length+1);
+  newmail=1;
+}
+
+void processIncoming(){
+  Serial.println(topicIn);
+  Serial.println(payloadIn);
   StaticJsonBuffer<200> jsonBuffer;
-  Serial.println(incoming);
   // "{\"heat\":1,\"src\":1,\"empty\":1}"
   JsonObject& root = jsonBuffer.parseObject(incoming);
   relay = root["heat"];
@@ -213,38 +221,18 @@ void callback(char* topic, byte* payload, unsigned int length) {
     oldLed=2;
   }
   if (empty==1){
-    Serial.println("clearing eeprom");
+    //Serial.println("clearing eeprom");
     for (int i = 0; i < 96; ++i) { EEPROM.write(i, 0); }
     EEPROM.commit();  
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
     delay(100);      
-  }
-  Serial.println(empty);
+  }  
+  newmail=0;  
 }
-void reconnect() {
-  while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
-    // Attempt to connect
-    // If you do not want to use a username and password, change next line to
-    // if (client.connect("ESP8266Client")) {
-    if (client.connect("ESP8266Client")) {
-      Serial.println("connected");
-      client.subscribe(cmd);
-    } else {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-      delay(5000);
-    }
-  }
-}
+
 void reconn() {
   Serial.print("Attempting MQTT connection...");
-  // Attempt to connect
-  // If you do not want to use a username and password, change next line to
-  // if (client.connect("ESP8266Client")) {
   if (client.connect("ESP8266Client")) {
     Serial.println("connected");
     client.subscribe(cmd);
@@ -303,9 +291,12 @@ void loop() {
   if (client.connected()){
     client.loop();
   }
+  if (newmail){
+    processIncoming();
+  }
   float temp;
   long now = millis();
-  if (now - lastMsg > 1000) {
+  if (now - lastMsg > 1000 && autom) {
     lastMsg = now; //reset timer
     oldHoah = hoah;
     oldHoaa = hoaa;
