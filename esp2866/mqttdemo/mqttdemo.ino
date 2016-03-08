@@ -5,6 +5,9 @@
 #include <EEPROM.h>
 #include <ArduinoJson.h>
 #include <ESP8266WebServer.h>
+#include "user_interface.h"
+#include <Time.h>
+#include <TimeLib.h>
 
 #define HOAH 14
 #define HOAA 13
@@ -14,6 +17,9 @@
 #define ONE_WIRE_BUS 4  // DS18B20 pin
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature DS18B20(&oneWire);
+
+// os_timer_t myTimer;
+//bool timerCompleted;
 
 ESP8266WebServer server(80);
 String st;
@@ -247,6 +253,7 @@ void reconn() {
   }
 }
 
+
 long lastMsg = 0;
 int hoa ;
 int haa ;
@@ -280,10 +287,12 @@ void setup() {
   char arr[ ] = "This is a test";
   String sarr = String(arr).c_str();
   Serial.println(sarr + 456);
-
 }
-
+void duck(void){
+  Serial.println('is a duck');   
+}
 void loop() {
+  duck();
   server.handleClient();
   if (!client.connected()) {
     reconn();

@@ -1,10 +1,15 @@
 {
-  "name": "server",
+  "name": "demiot-server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "set NODE_ENV=development&& node lib/index.js --exec babel-node --presets es2015,stage-2 --watch lib",
+    "starttest": "set NODE_ENV=development&& node lib/test.js --exec babel-node --presets es2015,stage-2 --watch lib",
+    "build": "set NODE_ENV=production&& babel lib -d dist --presets es2015,stage-2",
+    "serve": "set NODE_ENV=production&& node dist/index.js",
+    "test": "mocha --compilers js:../../node_modules/babel-core/register --require ./test/test_helper.js  --recursive --slow 4",
+    "test:watch": "npm run test -- --watch"
   },
   "keywords": [],
   "author": "Timothy S. McKenna <mckenna.tim@gmail.com> (http://mckennatim.github.io/mckennatim/)",

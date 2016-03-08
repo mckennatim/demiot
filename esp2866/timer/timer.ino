@@ -1,15 +1,4 @@
-#include "user_interface.h"
-
-os_timer_t myTimer;
-bool tickOccured;
-void timerCallback(void *pArg) {
-  tickOccured = true;
-}
-
-void user_init(void) {
-  os_timer_setfn(&myTimer, timerCallback, NULL);
-  os_timer_arm(&myTimer, 1000, true);
-} 
+#include "helper.h"
 
 void setup() {
   Serial.begin(115200);
@@ -18,14 +7,15 @@ void setup() {
   Serial.println("--------------------------");
   Serial.println("ESP8266 Timer Test");
   Serial.println("--------------------------");
-  tickOccured = false;
+  timerCompleted = false;
+  helper_function();
   user_init();
 }
 
 void loop() {
-  if (tickOccured == true){
+  if (timerCompleted == true){
     Serial.println("Tick Occurred");
-    tickOccured = false;
+    timerCompleted = false;
   }
   yield();  
 }

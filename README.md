@@ -2,7 +2,19 @@
 IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt broker and websocket server, and clients of various flavors
 
 ##
+### 6-multiple-files-in-one-sketch
+### Multiple Arduino Files in one sketch
+The way that I use to create multiple Arduino files is the way that you would do that in c++ since I might as well learn the most general skill.
+
+Basically you include a header.h in the ino, write a helper.h and helper.cpp and have them all in the same directory.
+
+Each .cpp file needs an Arduino.h header
+
 ### 5-timer.ino
+
+##### global variables
+Variables shared between the .ino and .cpp that are needed for the .cpp are declared in the header and again in the .cpp as `extern`. then they are available in the .ino
+
 
 ### 4-refactorISR-mqttdemo
 Make the interrupt for mqtt data as short as possible.
