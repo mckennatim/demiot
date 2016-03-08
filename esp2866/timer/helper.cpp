@@ -12,5 +12,5 @@ void timerCallback(void *pArg) {
 
 void user_init(void) {
   os_timer_setfn(&myTimer, timerCallback, NULL);
-  os_timer_arm(&myTimer, 1000, true);//true-repeat
+  os_timer_arm(&myTimer, 15000, true);//true-repeat
 } 

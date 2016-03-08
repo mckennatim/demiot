@@ -1,7 +1,20 @@
 #demiot
 IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt broker and websocket server, and clients of various flavors
 
+
 ##
+### 8-c++return-multiple-values
+`void setupAp(char* bigstr, int& blen){}` returns to ssinf and bl...
+
+      char ssinf[400];
+      int bl;
+      setupAp(ssinf, bl);
+      Serial.println(ssinf);
+      Serial.println(bl);
+
+This is in `esp8266/timer/timer.ino setupAp()`
+### 7-char[]-over-string
+One should avoid the use of Strings in microcontroller, using char[] instead. To change string into a char array use `mystr.c_str()`. To convert an int to char array use `String(myint).c_str()` This is in `esp8266/timer/timer.ino setupAp()`
 ### 6-multiple-files-in-one-sketch
 ### Multiple Arduino Files in one sketch
 The way that I use to create multiple Arduino files is the way that you would do that in c++ since I might as well learn the most general skill.
