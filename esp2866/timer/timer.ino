@@ -13,6 +13,9 @@ void setupAp(char* bigstr, int& blen){
   WiFi.disconnect();
   delay(100);  
   int n = WiFi.scanNetworks();
+  char* ssiStrings[n];
+  char md[n][50];
+
   Serial.print(n);
   strcpy(bigstr,"");
   Serial.println(" networks found");
@@ -24,15 +27,13 @@ void setupAp(char* bigstr, int& blen){
     strcat(str,String(WiFi.RSSI(i)).c_str());
     strcat(str,")");
     strcat(str, (WiFi.encryptionType(i) == ENC_TYPE_NONE)?" ":"*");
+    strcpy(md[i],str);
     strcat(str,"\n");
     strcat(bigstr,str);
   } 
-  //Serial.println(bigstr);
   blen = strlen(bigstr);
-  // Serial.println(strlen(bigstr)); 
-  // Serial.println(blen); 
+  Serial.println(md[2]);
   delay(10); 
-  //return str;  
 }
 
 
@@ -51,6 +52,22 @@ void setup() {
   setupAp(ssinf, bl);
   Serial.println(ssinf);
   Serial.println(bl);
+  //Serial.println(md);
+ 
+  char* myStrings[]={"This is string 1", "This is string 2", "This is string 3",
+    "This is string 4", "This is string 5","This is string 6"};
+  for (int i = 0; i < 6; i++){
+    Serial.println(myStrings[i]);
+    delay(500);
+  }
+  char a[6][20];
+  for (int i = 0; i < 6; i++){
+    char strr[20];
+    strcpy(strr,"This is string ");
+    strcat(strr, String(i+1).c_str());    
+    strcpy(a[i], strr);
+  }
+  Serial.println(a[3]);
 }
 
 void loop() {

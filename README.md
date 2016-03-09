@@ -3,6 +3,26 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 9-const-arrays-of-strings
+#### How do you best construct an array of strings in c++ arduino (for esp8266)
+in esp8266/timer/timer.ino
+Say I have just created a char array `char strr[20]` and I want to add it to an array of char arrays `char bmyStrings[6][20];` 
+
+If you knew what the strings were you could do it like 
+
+    char* myStrings[]={"This is string 1", "This is string 2", "This is string 3","This is string 4", "This is string 5","This is string 6"};
+
+But I don't. They need to be created on the fly. This works:
+
+      char bmyStrings[6][20];  
+      for(int i = 0; i < 6; ++i){
+        char strr[20];
+        strcpy(strr,"This is string ");
+        strcat(strr, String(i+1).c_str(()));
+        strcpy(bmyStrings[i],strr);
+      } 
+
+
 ### 8-c++return-multiple-values
 `void setupAp(char* bigstr, int& blen){}` returns to ssinf and bl...
 
