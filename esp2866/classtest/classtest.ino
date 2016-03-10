@@ -2,7 +2,7 @@
 #include "WebCfg.h"
 
 Aclass aclass;
-WebCfg cfg;
+WebCfg cfg(80);
 
 void setup(){
 	Serial.begin(115200);

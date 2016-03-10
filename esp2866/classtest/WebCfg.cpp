@@ -3,13 +3,17 @@
 #include "WebCfg.h"
 
 
+WebCfg::WebCfg(int port): server(80)
+{
+	_port=port;
+}
+
 void WebCfg::getSSIDs(){
   char str[50];
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
   delay(100);  
   int n = WiFi.scanNetworks();
-  //delay(300);
   Serial.print(n);
   Serial.println(" networks found"); 
 	strcpy(ssids,"{");
@@ -26,5 +30,11 @@ void WebCfg::getSSIDs(){
 		if(i<n-1){strcat(ssids, ",");}
 	}
 	strcat(ssids,"}");
-  
+}
+
+void WebCfg::setupServer(){
+  server.on("/", [&]() {
+    IPAddress ip = WiFi.softAPIP();
+    server.send(200, "text/html", ssids);  
+  });	
 }
