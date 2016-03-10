@@ -2,7 +2,7 @@
 #include "helper.h"
 #include "WifiCfg.h"
 
-
+WifiCfg cfg;
 //char str[50];
 //char bigstr[400];
 //int x = 14;
@@ -61,8 +61,7 @@ void setup() {
   Serial.println("--------------------------");
   Serial.println("ESP8266 Timer Test");
   Serial.println("--------------------------");
-  WifiCfg cfg();
-  //cfg.getSSIDs();
+  cfg.getSSIDs();
   timerCompleted = false;
   helper_function();
   user_init();

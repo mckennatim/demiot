@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-class WifiCfg{
+class WebCfg{
 	public:
 		char ssids[300];
 		void getSSIDs();

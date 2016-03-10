@@ -3,6 +3,8 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 11-classtest-WebCfg
+Beginning of a class for webconfig of esp8288. Once you start `WiFi.scanNetworks()` you got to finish quick or crash. No time for sprintf. Put everything in temporary arrays and format the json string latter. Cool ssids is a class variable. Probably can be private. Don't need to carry it around (esp8266/classtest/classtest.ino)
 ### 10-classtest
 esp8266/classtest/classtest.ino , You don't need a constructor
 ### 9-const-arrays-of-strings
