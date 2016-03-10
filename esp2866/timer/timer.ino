@@ -1,10 +1,18 @@
 #include <ESP8266WiFi.h>
 #include "helper.h"
+#include "WifiCfg.h"
+
 
 //char str[50];
 //char bigstr[400];
 //int x = 14;
 
+// void setupAp(char ss[15][50]){
+//   WiFi.mode(WIFI_STA);
+//   WiFi.disconnect();
+//   delay(100);  
+//   int n = WiFi.scanNetworks();  
+// }
 
 
 void setupAp(char* bigstr, int& blen){
@@ -36,6 +44,15 @@ void setupAp(char* bigstr, int& blen){
   delay(10); 
 }
 
+void reta(char da[15][50]){
+  int n = 6;
+  for(int i =0; i<n; i++){
+    char s[50];
+    strcpy(s,"this is number ");
+    strcat(s, String(i).c_str());
+    strcpy(da[i], s);
+  }
+}
 
 void setup() {
   Serial.begin(115200);
@@ -44,6 +61,8 @@ void setup() {
   Serial.println("--------------------------");
   Serial.println("ESP8266 Timer Test");
   Serial.println("--------------------------");
+  WifiCfg cfg();
+  //cfg.getSSIDs();
   timerCompleted = false;
   helper_function();
   user_init();
@@ -68,6 +87,11 @@ void setup() {
     strcpy(a[i], strr);
   }
   Serial.println(a[3]);
+  char ma[15][50];
+  reta(ma);
+  for (int i = 0; i < 6; i++){
+    Serial.println(ma[i]);
+  }
 }
 
 void loop() {

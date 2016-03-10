@@ -3,6 +3,8 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 10-classtest
+esp8266/classtest/classtest.ino , You don't need a constructor
 ### 9-const-arrays-of-strings
 #### How do you best construct an array of strings in c++ arduino (for esp8266)
 in esp8266/timer/timer.ino

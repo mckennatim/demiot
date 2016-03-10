@@ -292,7 +292,7 @@ void duck(void){
   Serial.println('is a duck');   
 }
 void loop() {
-  duck();
+  //duck();
   server.handleClient();
   if (!client.connected()) {
     reconn();
