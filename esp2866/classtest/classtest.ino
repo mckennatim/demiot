@@ -13,8 +13,11 @@ void setup(){
   aclass.dot();
   cfg.getSSIDs();
   Serial.println(cfg.ssids);
+  cfg.setupServer();
+  cfg.startAp();
+  //cfg.server.begin();
 }
 
 void loop(){
-
+	cfg.server.handleClient();
 }
