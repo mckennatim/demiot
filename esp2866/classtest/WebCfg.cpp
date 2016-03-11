@@ -2,7 +2,6 @@
 #include <ESP8266WiFi.h>
 #include "WebCfg.h"
 
-
 void WebCfg::getSSIDs(){
   char str[50];
   WiFi.mode(WIFI_STA);
