@@ -10,6 +10,12 @@ class Aclass{
 	private:
 		int _pin;
 };
-
+// class Bclass{
+// 	public:
+// 		//Aclass(int pin);
+// 		void dash();
+// 	private:
+// 		int _pin;
+// };
 
 #endif

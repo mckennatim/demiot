@@ -3,7 +3,10 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 16-webconfig-basic
+in esp2866/webconfig
 ### 15-recover
+- `WiFi.softAP("esp8266sb", "jjjjjjjj", 6);` password needs to be at least 8 characters or it will just keep the previous one.
 ### 12-lambdas&initializers
 oh my. 
 <a href="http://arduinoetcetera.blogspot.com/2011/01/classes-within-classes-initialiser.html">classes within classes Christian Murphy</a>
