@@ -3,6 +3,65 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 18-EEPROM-save-read
+in esp8266/multifile/config.cpp. Added functions for `showCfg()` , `server.on("/erase", handleErase);`, 
+
+    void saveConfig(){
+      for (int i = 0; i < 100; ++i) { EEPROM.write(i, 0); }
+      idx[0]=saveCfg(ssid, 5);
+      idx[1]=saveCfg(pwd, idx[0]);
+      idx[2]=saveCfg(devid, idx[1]);
+      idx[3]=saveCfg(ip, idx[2]);
+      idx[4]=saveCfg(port, idx[3]);
+      for (int i = 0; i < 5; ++i) { 
+        EEPROM.write(i, idx[i]); 
+      }
+      EEPROM.commit();    
+      showCfg();  
+    }
+
+
+The first 5 bytes of EEEPROM are the `uint8_t` indexes of each of the config variables. (written in the for loop above). `strlen` (from saveCfg) is where thos indexes come from.
+
+    uint8_t saveCfg(char cf[], uint8_t start)
+    {
+      uint8_t fini = strlen(cf) + start;
+      Serial.print("Wrote: ");
+      Serial.print(fini);
+      Serial.print(": ");
+      for (int i = 0; i < strlen(cf); ++i){
+        EEPROM.write(start+i, cf[i]);
+        Serial.print(cf[i]); 
+      } 
+      Serial.println(); 
+      return fini;
+    }
+
+Config variables are read out by first gettin the indexes and then the variables.
+
+      void readConfig(){
+        for (int i=0; i<5;i++){
+          idx[i]=EEPROM.read(i);
+          Serial.println(idx[i]);
+        }
+        getCfg(ssid, 5, idx[0]);
+        getCfg(pwd, idx[0], idx[1]);
+        getCfg(devid, idx[1], idx[2]);
+        getCfg(ip, idx[2], idx[3]);
+        getCfg(port, idx[3], idx[4]);
+        showCfg();
+      }
+
+`char* s` is an out-parameter pointing to the first char address of whatever char[] you pass to it. 
+
+    void getCfg(char* s, uint8_t beg, uint8_t end){
+      for (int i=0;i<end-beg;i++){
+        s[i]=char(EEPROM.read(i+beg));
+      }
+      s[end-beg]='\0';
+    }
+
+
 ### 17-multifile-extern-server
 in esp8266/multifile. Can now group functions in their own .h and .cpp files and have them share variables like a `ESP8266WebServer server(80);`  instance.
 ### 16-webconfig-basic
