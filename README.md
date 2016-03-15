@@ -3,6 +3,8 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 17-multifile-extern-server
+in esp8266/multifile. Can now group functions in their own .h and .cpp files and have them share variables like a `ESP8266WebServer server(80);`  instance.
 ### 16-webconfig-basic
 in esp2866/webconfig
 ### 15-recover

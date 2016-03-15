@@ -8,6 +8,7 @@ Aclass aclass;
 //Bclass bclass;
 //WebCfg cfg(80);
 ESP8266WebServer server(80);
+WebCfg cfg(server);
 const char *assid = "ESPap";
 
 char ssids[300];
