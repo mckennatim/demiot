@@ -1,5 +1,46 @@
+### MQTT after webconfig state=-2 on reset
+After webconfig, when moving from AP mode to wifi client mode, the reset button works for wifi connect but not for pubsubclient connect. In order to get pubsubclient to connect I need to power down the Wemos mini. After wifi is setup, reset works fine for pubsubclient connect. Is there some command that I am missing?
+
+    WiFiClient espClient;
+    PubSubClient client(espClient);
+
+    void setup(){
+      Serial.begin(115200);
+      EEPROM.begin(512);
+      Serial.println();
+      Serial.println("--------------------------");
+      Serial.println("ESP8266 multifile");
+      Serial.println("--------------------------");
+      getOnline();
+      strcpy(cmd, devid);
+      strcat(cmd,"/cmd");
+      client.setServer(ip, 1883);
+      client.setCallback(handleMqttIn);  
+    }
+
+    void loop(){
+      server.handleClient();
+      if(NEW_MAIL){processIncoming();}
+      if(!client.connected() && !NEEDS_RESET){
+         reconn();
+      }else{
+        client.loop();
+      }
+    }
+
+    void reconn() {
+      Serial.print("Attempting MQTT connection...");
+      if (client.connect(devid)) {
+        Serial.println("connected");
+        client.subscribe(cmd);
+        return;
+      } else {
+
+(arduino 1.6.7)
 
 ### Multi-file arduino esp8266 sketch sharing a reference to server
+ans: put extern in the .h file in front of the declaration and not in the .cpp file.
+
 (transferred from stackoverflow on the advice of @Gee_Bee I can get https://www.arduino.cc/en/Hacking/LibraryTutorial to work as well as http://arduino.land/FAQ/content/7/43/en/breaking-a-sketch-into-multiple-files.html and http://arduinoetcetera.blogspot.com/2011/01/classes-within-classes-initialiser.html I can even get extern references to variables to work but referencing the an instance of ESP8266WebServer in different files is still beyond me)
 
 As my sketches get bigger, the code looks awful as one file and the number of global variables is too high. 

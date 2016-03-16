@@ -3,6 +3,8 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 19-mqttdemo-1.0
+refactored and running
 ### 18-EEPROM-save-read
 in esp8266/multifile/config.cpp. Added functions for `showCfg()` , `server.on("/erase", handleErase);`, 
 

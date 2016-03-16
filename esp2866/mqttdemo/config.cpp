@@ -6,13 +6,14 @@
 
 
 char *espssid = "espAPsb";
-char ssid[40] = "street_no_vale2";
-char pwd[24] = "jjjjjjjjx";
+char ssid[40];
+char pwd[24];
 char devid[9];
 char ip[16];
 char port[5];
 char ssids[500];
-uint8_t idx[6];
+uint8_t idx[5];
+bool NEEDS_RESET = 0;
 
 ESP8266WebServer server(80);
 
@@ -32,15 +33,26 @@ uint8_t saveCfg(char cf[], uint8_t start)
 
 void showCfg()
 {
-  Serial.print("ssid: ");
+  Serial.println("idx:[5]");
+  Serial.print("ssid:[");
+  Serial.print(idx[0]);
+  Serial.print("] ");
   Serial.println(ssid);
-  Serial.print("pwd: ");
+  Serial.print("pwd:[");
+  Serial.print(idx[1]);
+  Serial.print("] ");
   Serial.println(pwd);
-  Serial.print("devid: ");
+  Serial.print("devid:[");
+  Serial.print(idx[2]);
+  Serial.print("] ");
   Serial.println(devid);
-  Serial.print("ip: ");
+  Serial.print("ip:[");
+  Serial.print(idx[3]);
+  Serial.print("] ");
   Serial.println(ip);
-  Serial.print("port: ");
+  Serial.print("port:[");
+  Serial.print(idx[4]);
+  Serial.print("] ");
   Serial.println(port);
 }
 
@@ -55,7 +67,8 @@ void saveConfig(){
     EEPROM.write(i, idx[i]); 
   }
   EEPROM.commit();    
-  showCfg();  
+  showCfg(); 
+  //getOnline(); 
 }
 
 void handleRoot(){
@@ -72,20 +85,23 @@ void handleConfig(){
   saveConfig();
 }
 
-
+void eraseConfig(){
+  for (int i = 0; i < 100; ++i) { EEPROM.write(i, 0); }
+  EEPROM.commit();  
+  ssid[0] = '\0';
+  pwd[0] = '\0';
+  devid[0] = '\0';
+  ip[0] = '\0';
+  port[0] = '\0'; 
+  
+  showCfg();
+  Serial.println("all erased");
+}
 
 void handleErase(){
   if(server.arg("erase")=="true"){
-    for (int i = 0; i < 100; ++i) { EEPROM.write(i, 0); }
-    EEPROM.commit();  
-    ssid[0] = '\0';
-    pwd[0] = '\0';
-    devid[0] = '\0';
-    ip[0] = '\0';
-    port[0] = '\0';
+    eraseConfig();
   }
-  showCfg();
-  Serial.println("all erased");
 }
 
 void getCfg(char* s, uint8_t beg, uint8_t end){
@@ -96,10 +112,7 @@ void getCfg(char* s, uint8_t beg, uint8_t end){
 }
 
 void readConfig(){
-  for (int i=0; i<5;i++){
-    idx[i]=EEPROM.read(i);
-    Serial.println(idx[i]);
-  }
+  for (int i=0; i<5;i++){idx[i]=EEPROM.read(i);}
   getCfg(ssid, 5, idx[0]);
   getCfg(pwd, idx[0], idx[1]);
   getCfg(devid, idx[1], idx[2]);
@@ -149,6 +162,7 @@ void setupAP(){
 
 void getOnline(){
   readConfig();
+  Serial.println(ssid);
 	WiFi.begin(ssid, pwd);
   int tries =0;
   int success=1;
@@ -162,6 +176,7 @@ void getOnline(){
       getSSIDs();
       Serial.println(ssids);
       setupAP();
+      NEEDS_RESET=1;
       break;
     }
   }
@@ -169,6 +184,8 @@ void getOnline(){
     Serial.println("");
     Serial.println("WiFi connected");
     Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());    
+    Serial.println(WiFi.localIP()); 
+    Serial.println(ssid); 
+    NEEDS_RESET=0;  
   } 
 }
