@@ -5,7 +5,7 @@
 #include <ArduinoJson.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include "Console.h"
+#include "MQclient.h"
 
 #define HOAH 14
 #define HOAA 13
@@ -17,8 +17,8 @@ DallasTemperature DS18B20(&oneWire);
 
 WiFiClient espClient;
 PubSubClient client(espClient);
-Console console(devid, client);
 
+MQclient mq;
 
 char topicin[16];
 char incoming[80];
@@ -86,6 +86,20 @@ void processIncoming(){
   NEW_MAIL=0;  
 }
 
+// class Console{
+// public:
+// 	void log(char* dd);
+// };
+
+// void Console::log(char* dd){
+// 	char log[20];
+// 	strcpy(log,devid);
+// 	strcat(log,"/log");
+//   if (client.connected()){
+//     client.publish(log, dd, true);
+//   }		
+// }
+Console console;
 
 void publishState(){
 	char astr[120];
@@ -154,7 +168,11 @@ void setup(){
   strcpy(cmd, devid);
   strcat(cmd,"/cmd");
   client.setServer(ip, 1883);
-	client.setCallback(handleMqttIn);  
+  mq.sclient.setServer(ip, 1883);
+
+  client.setCallback(handleMqttIn);  
+  //mq.sclient.setCallback(handleMqttIn);  
+  mq.sclient.setCallback(handleCallback);  
 	pinMode(HOAH, INPUT);//pullup
   pinMode(HOAA, INPUT);//pullup
   pinMode(ALED, OUTPUT);

@@ -3,8 +3,45 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 20-Console-class
+(Finally) created a class that includes a reference to a library instance.
+
+    #ifndef Console_h
+    #define Console_h
+      #include <PubSubClient.h>
+      class Console{
+      public:
+        Console(char* devid, PubSubClient& client);
+        PubSubClient cclient;
+        char* cdevid;
+        void log(char* dd);
+      };
+    #endif
+
+      #include "Console.h"
+      #include <Arduino.h>
+      #include <PubSubClient.h>
+      Console::Console(char* devid, PubSubClient& client ){
+        cdevid = devid;
+        cclient = client;
+      }
+      void Console::log(char* dd){
+        char log[20];
+        strcpy(log,cdevid);
+        strcat(log,"/log");
+        if (cclient.connected()){
+          cclient.publish(log, dd, true);
+        }   
+      }
+
+`Console console(devid,client)` intantiates console giving access to `devid` and `client` by passing it a pointer to the `devid` string and a reference to the `client`. Woo Woo. (this may be an innacurate description)
+
+
+
 ### 19-mqttdemo-1.0
 refactored and running
+
+<a href="https://github.com/Imroy/pubsubclient/issues/55">after webconfig state=-2 on reset</a>
 ### 18-EEPROM-save-read
 in esp8266/multifile/config.cpp. Added functions for `showCfg()` , `server.on("/erase", handleErase);`, 
 
@@ -65,6 +102,15 @@ Config variables are read out by first gettin the indexes and then the variables
 
 
 ### 17-multifile-extern-server
+<a href="https://github.com/esp8266/Arduino/issues/1776#issuecomment-196599815">esp8266/arduino issues</a>
+ 
+However if you wanna have it nice, I'd make an own cpp class with the ESP8266 specific code, and would use that from my Arduino sketch. For example, your new cpp class could have one connect() method (aka getOnline) which you can nicely call from your main sketch. This is much better approach than letting the ESP8266WebServer instance being referred in all other souce codes - that would really break the concept of modular programming. – Gee Bee 4 hours ago
+      
+Yeah that's where I was heading. My problem was I still needed to use server,handleClient() in the main loop so I needed a reference to server. I suppose I could wrap that too inside a Config class and then just call cfg.getOnline() in setup and cfg.handleConfig() in loop. – mcktimo just now   edit   
+
+<a href="http://stackoverflow.com/questions/35998907/multi-file-arduino-esp8266-sketch-sharing-a-reference-to-server?noredirect=1#comment59653729_35998907">Multi-file arduino esp8266 sketch sharing a reference to server</a>
+Wow the world is changing. These days Github issues is so where it is at. extern ESP8266WebServer server; goes in the .h file and ESP8266WebServer server(80) goes in the .cpp file. It would be like that in c++ as well
+
 in esp8266/multifile. Can now group functions in their own .h and .cpp files and have them share variables like a `ESP8266WebServer server(80);`  instance.
 ### 16-webconfig-basic
 in esp2866/webconfig

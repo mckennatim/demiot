@@ -12,11 +12,11 @@ Config::Config(ESP8266WebServer& server){
   this->server = server;
 }
 
-Config::handleRoot(){
+void Config::handleRoot(){
 	this->server.send(200, "text/html", "<h1>root of espAPsb AP server</h1>");
 }
 
-Confi::scan(){
+void Config::scan(){
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
   delay(100);
@@ -44,7 +44,7 @@ Confi::scan(){
   Serial.println("");  	
 }
 
-Config::setupAP(){
+void Config::setupAP(){
 	WiFi.softAP(espssid);
 	this->server.on("/", handleRoot);
 	this->server.begin();
@@ -55,7 +55,7 @@ Config::setupAP(){
   Serial.println(WiFi.softAPIP()); 	
 }
 
-Config::getOnline(){
+void Config::getOnline(){
 	WiFi.begin(ssid, pwd);
   int tries =0;
   int success=1;
