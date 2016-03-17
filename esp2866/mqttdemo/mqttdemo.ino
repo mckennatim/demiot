@@ -5,7 +5,7 @@
 #include <ArduinoJson.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include "Console.h"
+#include "MQclient.h"
 
 #define HOAH 14
 #define HOAA 13
@@ -18,6 +18,7 @@ DallasTemperature DS18B20(&oneWire);
 WiFiClient espClient;
 PubSubClient client(espClient);
 Console console(devid, client);
+MQclient mq(devid);
 
 
 char topicin[16];
@@ -129,26 +130,26 @@ void controlHeat(){
 	}
 }
 
-void reconn() {
-  Serial.print("Attempting MQTT connection...");
-  if (client.connect(devid)) {
-    Serial.println("connected");
-    client.subscribe(cmd);
-    return;
-  } else {
-    Serial.print("failed, rc=");
-    Serial.print(client.state());
-    delay(5000);
-    Serial.println(" try again in 5 seconds");
-  }
-}
+// void reconn() {
+//   Serial.print("Attempting MQTT connection...");
+//   if (client.connect(devid)) {
+//     Serial.println("connected");
+//     client.subscribe(cmd);
+//     return;
+//   } else {
+//     Serial.print("failed, rc=");
+//     Serial.print(client.state());
+//     delay(5000);
+//     Serial.println(" try again in 5 seconds");
+//   }
+// }
 
 void setup(){
 	Serial.begin(115200);
 	EEPROM.begin(512);
 	Serial.println();
 	Serial.println("--------------------------");
-  Serial.println("ESP8266 multifile");
+  Serial.println("ESP8266 mqttdemo");
   Serial.println("--------------------------");
   getOnline();
   strcpy(cmd, devid);
@@ -168,7 +169,7 @@ void loop(){
 	server.handleClient();
 	if(NEW_MAIL){processIncoming();}
 	if(!client.connected() && !NEEDS_RESET){
-		 reconn();
+		 mq.reconn(client);
 	}else{
 		client.loop();
 	}

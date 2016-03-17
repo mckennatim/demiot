@@ -3,6 +3,22 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 21-MQclient-class
+`MQclient` solves the main problem about passing classes by reference at the time of execution <s>(prior attempts initialized the class with the reference to other class)</s> by passing ext.class by reference to a method in another class. BTW console.log is ini tis own class in the same file.
+
+    void MQclient::reconn(PubSubClient& client) {
+      Serial.print("Attempting remo MQTT connection...");
+      if (client.connect(cdevid)) {...
+declared in .h as
+
+    class MQclient{
+    public:
+      MQclient(char* devid);
+      char* cdevid;
+      void reconn(PubSubClient& client);
+    };
+then invoked `mq.reconn(client);`
+
 ### 20-Console-class
 (Finally) created a class that includes a reference to a library instance.
 
