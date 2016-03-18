@@ -27,12 +27,12 @@
 		function uclicked(){
 			//document.getElementById('lue').innerHTML=onoff
 			onoff=!onoff;
-			var thecmd =  "{\"heat\":"+onoff*1+",\"src\":1,\"empty\":0}"
+			var thecmd =  "{\"heat\":"+onoff*1+",\"src\":1,\"empty\":0,\"auto\":1}"
 			console.log(thecmd);
 			client.publish(cmd, thecmd)
 		}
 		function empty(){
-			var thecmd =  "{\"heat\":"+onoff*1+",\"src\":1,\"empty\":1}"
+			var thecmd =  "{\"heat\":"+onoff*1+",\"src\":1,\"empty\":1,\"auto\":1}"
 			console.log(thecmd);
 			client.publish(cmd, thecmd)			
 		}

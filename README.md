@@ -3,6 +3,8 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 22-handleCallback
+Nothing much happens in a callback, it it fine to keep in MQclient along with the itopic and ipayload it produces ans well as NEW_MAIL.
 ### 21-MQclient-class
 `MQclient` solves the main problem about passing classes by reference at the time of execution <s>(prior attempts initialized the class with the reference to other class)</s> by passing ext.class by reference to a method in another class. BTW console.log is ini tis own class in the same file.
 

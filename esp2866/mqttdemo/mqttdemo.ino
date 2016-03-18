@@ -20,14 +20,8 @@ PubSubClient client(espClient);
 Console console(devid, client);
 MQclient mq(devid);
 
-
-char topicin[16];
-char incoming[80];
-char cmd[20];
-
 bool AUTOMA=1;
 bool HAY_CNG=1;
-bool NEW_MAIL=0;
 
 struct STATE {
 	int temp1=32;
@@ -39,22 +33,22 @@ struct STATE {
 
 void handleMqttIn(char* topic, byte* payload, unsigned int length) {
   for (int i=0;i<strlen(topic);i++) {
-    topicin[i] = topic[i];
+    itopic[i] = topic[i];
   }
-  topicin[strlen(topic)] = '\0';  
+  itopic[strlen(topic)] = '\0';  
   for (int i=0;i<length;i++) {
-    incoming[i] = (char)payload[i];
+    ipayload[i] = (char)payload[i];
   }
-  incoming[length] = '\0';
+  ipayload[length] = '\0';
   NEW_MAIL = 1;
 }
 
 void processIncoming(){
-  Serial.println(topicin);
-  Serial.println(incoming);
+  Serial.println(itopic);
+  Serial.println(ipayload);
   StaticJsonBuffer<200> jsonBuffer;
   // "{\"heat\":1,\"src\":1,\"empty\":1}"
-  JsonObject& root = jsonBuffer.parseObject(incoming);
+  JsonObject& root = jsonBuffer.parseObject(ipayload);
   bool heat = root["heat"];
   bool automa = root["auto"];
   int hilimit = root["hilimit"];
@@ -130,20 +124,6 @@ void controlHeat(){
 	}
 }
 
-// void reconn() {
-//   Serial.print("Attempting MQTT connection...");
-//   if (client.connect(devid)) {
-//     Serial.println("connected");
-//     client.subscribe(cmd);
-//     return;
-//   } else {
-//     Serial.print("failed, rc=");
-//     Serial.print(client.state());
-//     delay(5000);
-//     Serial.println(" try again in 5 seconds");
-//   }
-// }
-
 void setup(){
 	Serial.begin(115200);
 	EEPROM.begin(512);
@@ -152,10 +132,8 @@ void setup(){
   Serial.println("ESP8266 mqttdemo");
   Serial.println("--------------------------");
   getOnline();
-  strcpy(cmd, devid);
-  strcat(cmd,"/cmd");
   client.setServer(ip, 1883);
-	client.setCallback(handleMqttIn);  
+  client.setCallback(handleCallback);  
 	pinMode(HOAH, INPUT);//pullup
   pinMode(HOAA, INPUT);//pullup
   pinMode(ALED, OUTPUT);

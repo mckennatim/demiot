@@ -18,4 +18,10 @@ public:
 	void reconn(PubSubClient& client);
 };
 
+extern char itopic[16];
+extern char ipayload[80];
+extern bool NEW_MAIL;
+
+void handleCallback(char* topic, byte* payload, unsigned int length);
+
 #endif
