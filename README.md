@@ -3,6 +3,8 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 23-mqttTimer
+getting date/time through nist string and by espClient get to server. OK problems are there is no clock on the esp8266 and millis only telly you the time since the last bootup, resetting at 50 days.DS3231 is rtc with alarm and tempperature.
 ### 22-handleCallback
 Nothing much happens in a callback, it it fine to keep in MQclient along with the itopic and ipayload it produces ans well as NEW_MAIL.
 ### 21-MQclient-class

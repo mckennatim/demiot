@@ -16,6 +16,14 @@ app.get('/', function(req, res) {
 app.get('/api', function (req,res){
   res.send("<h4>in dreakin /api</h4>")
 });
+app.get('/api/date', function (req,res){
+  res.send(Date());
+});
+app.get('/api/time', function (req,res){
+  console.log(Date.now())
+  console.log(typeof(Date.now()))
+  res.send("{\"datetime\":"+ Date.now()/1000 +"}");
+});
 
 app.set('port', cfg.port.express || 3000);
 var server = http.createServer(app);
