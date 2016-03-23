@@ -3,6 +3,8 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 25-regtokau
+moved in the token authentication module and its test suite, refactored it, went back to nodedemon to use es6 import/export
 ### 24-server2
 Modularize server2, to be ready to add token auth and database for devices from www/node/sb/tokau-io-server and tmstack/token-auth-server
 ### 23-mqttTimer

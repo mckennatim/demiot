@@ -1,14 +1,16 @@
 var http = require('http')
-var express = require('express');
-var logger = require('morgan');//logs GET/ 304 12ms
+var passport = require('passport');
+//var express = require('express');
+//var logger = require('morgan');//logs GET/ 304 12ms
 var env = require('../../env.json')
 var cfg= env[process.env.NODE_ENV||'development']
 require('./modules/mqtt/mqtt.js')
+var app = require('./corsPassport');
+var regtokau = require('./modules/regtokau/routes')(passport);
 
-var app = express();
 var currentPacket;
 
-app.use(logger('dev'));
+app.use('/', regtokau);
 
 app.get('/', function(req, res) {
   res.send(currentPacket);

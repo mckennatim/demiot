@@ -33,7 +33,7 @@ moserver.published = function(packet, client, cb) {
     retain: packet.retain || false,
     qos: packet.qos || 0
   };
-  currentPacket= newPacket.payload.toString();
+  var currentPacket= newPacket.payload.toString();
   console.log('newPacket payload', packet.topic , newPacket.payload.toString());
   moserver.publish(newPacket, cb);
 }

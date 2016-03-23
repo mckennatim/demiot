@@ -3,12 +3,15 @@ var path = require('path');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var ejs = require('ejs')
+var passport = require('passport');
+var expressSession = require('express-session');
+var initPassport = require('./modules/regtokau/init');
 
 var app = express();
 //app.engine('.html', require('ejs').renderFile);
 // view engine setup
 app.set('views', __dirname + '/views/');
-var ejs = require('ejs')
 app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
@@ -27,12 +30,10 @@ app.all('*', function(req,res,next){
 });
 
 // Configuring Passport
-var passport = require('passport');
-var expressSession = require('express-session');
+
 app.use(passport.initialize());
 
 // Initialize Passport
-var initPassport = require('./modules/regtokau/init');
 initPassport(passport);
 
 // development error handler
