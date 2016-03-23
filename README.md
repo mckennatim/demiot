@@ -3,6 +3,8 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 24-server2
+Modularize server2, to be ready to add token auth and database for devices from www/node/sb/tokau-io-server and tmstack/token-auth-server
 ### 23-mqttTimer
 getting date/time through nist string and by espClient get to server. OK problems are there is no clock on the esp8266 and millis only telly you the time since the last bootup, resetting at 50 days.DS3231 is rtc with alarm and tempperature.
 ### 22-handleCallback

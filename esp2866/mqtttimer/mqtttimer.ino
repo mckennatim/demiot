@@ -4,7 +4,7 @@
 #include <ArduinoJson.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <Time.h>
+#include <TimeLib.h>
 //#include <TimeAlarms.h>
 #include "config.h"
 #include "MQclient.h"
@@ -170,16 +170,21 @@ void getMyTime(){
   const char* dstr = "{\"heat\":1,\"datetime\":1458357634}";
   JsonObject& root = tBuffer.parseObject(jstr);
   time_t datetime = root["datetime"];  
-  setTime(datetime);
-  // Serial.print(hour());
-  // Serial.print(": ");
-  // Serial.print(minute());
-  // Serial.print("  ");
-  // Serial.print(day());
-  // Serial.print(weekday());
-  // Serial.print(month());
-
-
+  //setTime(datetime);
+  time_t tzone= 4*60*60;
+  datetime=datetime-tzone;
+  Serial.print(hour(datetime));
+  Serial.print(":");
+  Serial.print(minute(datetime));
+  Serial.print(" ");
+  Serial.print(month(datetime));
+  Serial.print("/");
+  Serial.print(day(datetime));
+  Serial.print("/");
+  Serial.print(year(datetime));
+  Serial.print(" ");
+  Serial.print(weekday(datetime));
+  Serial.println();
   Serial.println(datetime);
   Serial.println("closing connection");  
 }
@@ -203,7 +208,7 @@ void setup(){
 }
 
 long before = 0;
-long now;
+long noww;
 
 void loop(){
 	server.handleClient();
@@ -213,9 +218,9 @@ void loop(){
 	}else{
 		client.loop();
 	}
-  now = millis();
-  if (now - before > 1000) {
-  	before = now;
+  noww = millis();
+  if (noww - before > 1000) {
+  	before = noww;
   	if(AUTOMA){
   		readTemps();
   		controlHeat();
