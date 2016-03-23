@@ -10,7 +10,7 @@ var secret = cfg.secret
 
 var httpLoc = 'http://localhost:' + cfg.port.express + '/api/reg/'
 
-describe('superagent:', function() {
+describe('regtokau:', function() {
 	var agent = superagent.agent();
 	var name = 'tim7';
 	var ucnt = 0;

@@ -3,6 +3,8 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 27-devices-db.spec.js
+added lib/db/devices and tests for db
 ### 26-refactor-server2-modules
 pulled out dattime and added routes to mqtt to display current message 
 ### 25-regtokau

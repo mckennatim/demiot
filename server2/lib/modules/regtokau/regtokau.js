@@ -1,11 +1,17 @@
-var env = require('../../../../env.json')
-var cfg= env[process.env.NODE_ENV||'development']
 var express = require('express');
-var router = express.Router();
+var mongoose = require('mongoose');
 var jwt = require('jwt-simple');
-var User = require('../../db/user');
 var cons = require('tracer').console();
+var env = require('../../../../env.json')
+
+var cfg= env[process.env.NODE_ENV||'development']
+var db = cfg.db
 var secret = cfg.secret
+
+var router = express.Router();
+
+mongoose.connect(db.url);
+var User = require('../../db/user');
 import {emailKey, createRandomWord} from './util'
 var blankUser= {name: '', email: '', lists:[], role:'', timestamp: 1, apikey: ''};
 
