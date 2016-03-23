@@ -1,6 +1,7 @@
 var mosca = require('mosca')
 var env = require('../../../../env.json')
 var cfg= env[process.env.NODE_ENV||'development']
+var currentPacket;
 
 var pubsubsettings = {
   //using ascoltatore
@@ -33,7 +34,9 @@ moserver.published = function(packet, client, cb) {
     retain: packet.retain || false,
     qos: packet.qos || 0
   };
-  var currentPacket= newPacket.payload.toString();
+  currentPacket= newPacket.payload.toString();
   console.log('newPacket payload', packet.topic , newPacket.payload.toString());
   moserver.publish(newPacket, cb);
 }
+
+export {currentPacket}

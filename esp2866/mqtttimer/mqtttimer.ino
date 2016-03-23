@@ -226,9 +226,9 @@ void loop(){
   		controlHeat();
   	}
   	if(HAY_CNG){
+      console.log("about to publish");
   		publishState();
   		HAY_CNG=0;
-  		console.log("example console.log entry");
   	}
   }	
 }

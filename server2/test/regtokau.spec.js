@@ -8,7 +8,7 @@ var env = require('../../env.json')
 var cfg= env[process.env.NODE_ENV||'development']
 var secret = cfg.secret
 
-var httpLoc = 'http://localhost:' + cfg.port.express + '/api/'
+var httpLoc = 'http://localhost:' + cfg.port.express + '/api/reg/'
 
 describe('superagent:', function() {
 	var agent = superagent.agent();
@@ -23,10 +23,10 @@ describe('superagent:', function() {
 	it('GET / should be running and return: please select...', function(done) {
 			superagent.get(httpLoc)
 				.end(function(e, res) {
-					//console.log(res.body)
+					console.log(res.body.message)
 					expect(e).to.eql(null)
-					expect(res.body.length).to.be.above(0)
-					expect(res.body).to.be.a('string')
+					expect(res.body).to.be.a('object')
+					expect(res.body.message).to.eql('in root of registration module')
 					done()
 				})
 		})

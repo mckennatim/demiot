@@ -8,9 +8,16 @@
     "starttest": "set NODE_ENV=development&& node lib/test.js --exec babel-node --presets es2015,stage-2 --watch lib",
     "build": "set NODE_ENV=production&& babel lib -d dist --presets es2015,stage-2",
     "serve": "set NODE_ENV=production&& node dist/index.js",
-    "test": "mocha --compilers js:../../node_modules/babel-core/register --require ./test/test_helper.js  --recursive --slow 4",
-    "test:watch": "npm run test -- --watch"
+    "test6": "mocha --compilers js:../../node_modules/babel-core/register --require ./test/test_helper.js  --recursive --slow 4",
+    "test6:watch": "npm run test -- --watch",
+    "test:watch": "mocha --watch" 
+
   },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  },  
   "keywords": [],
   "author": "Timothy S. McKenna <mckenna.tim@gmail.com> (http://mckennatim.github.io/mckennatim/)",
   "license": "MIT",

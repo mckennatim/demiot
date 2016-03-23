@@ -3,7 +3,6 @@ var cfg= env[process.env.NODE_ENV||'development']
 var express = require('express');
 var router = express.Router();
 var jwt = require('jwt-simple');
-//var fs = require('fs');
 var User = require('../../db/user');
 var cons = require('tracer').console();
 var secret = cfg.secret
@@ -11,19 +10,11 @@ import {emailKey, createRandomWord} from './util'
 var blankUser= {name: '', email: '', lists:[], role:'', timestamp: 1, apikey: ''};
 
 module.exports = function(passport) {
-	router.get('/api', function(req, res) {
-		// Display the Login page with any flash message, if any
-		res.jsonp('at the root of nothing');
-	});
-	router.get('/api/isers', function(req, res) {
-		console.log('in api/isers uu')
-		User.find({}, function(err, docs) {
-			res.send(docs);
-		});
+	router.get('/', function(req, res) {
+		res.jsonp({message: "in root of registration module"})		
 	});
 
-
-	router.get('/api/isMatch/', function(req, res) {
+	router.get('/isMatch/', function(req, res) {
 		console.log('in isMatch');
 		try{
 			var name = req.query.name.toLowerCase();
@@ -93,13 +84,13 @@ module.exports = function(passport) {
 		});
 	})
 
-	router.post('/api/authenticate/:name', 
-	//passport.authenticate('localapikey', {session: false, failureRedirect: '/api/unauthorized'}),
+	router.post('/authenticate/:name', 
+	//passport.authenticate('localapikey', {session: false, failureRedirect: '/unauthorized'}),
 		passport.authenticate('localapikey', {session: false}),
 		function(req, res) {
 			console.log(req.params)
 			cons.log(req.user)
-			console.log('just sent body in /api/authenticate')
+			console.log('just sent body in /authenticate')
 			if (req.params.name==req.user.name){
 				cons.log('names match')
 				var payload = {name: req.user.name};
@@ -113,7 +104,7 @@ module.exports = function(passport) {
 			}
 		}
 	);
-	router.get('/api/account', 
+	router.get('/account', 
 		passport.authenticate('bearer', { session: false }), 
 		function(req, res){ 
 			console.log('in api/account ') 
@@ -121,7 +112,7 @@ module.exports = function(passport) {
 			res.jsonp(req.user)
 		}
 	);
-	router.get('/api/isUser/:name', function(req, res) {
+	router.get('/isUser/:name', function(req, res) {
 		console.log('in isUser by name');
 		var name = req.params.name.toLowerCase();
 		console.log(name)
@@ -139,14 +130,14 @@ module.exports = function(passport) {
 			}
 		});
 	});
-	router.delete('/api/users/:name',
+	router.delete('/users/:name',
 		passport.authenticate('bearer', { session: false }),  
 		function(req, res) {
 			console.log('in delete user by name');
 			console.log(req.params);
 			var name = req.params.name;
 			User.remove({name: name}, function(err, resp) {
-				console.log(resp)
+				//console.log(resp)
 				res.jsonp({message: resp})
 			});
 		}
