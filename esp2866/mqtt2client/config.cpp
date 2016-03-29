@@ -11,7 +11,6 @@ char pwd[24];
 char devid[9];
 char ip[16];
 char port[5];
-int porti;
 char ssids[500];
 uint8_t idx[5];
 bool NEEDS_RESET = 0;

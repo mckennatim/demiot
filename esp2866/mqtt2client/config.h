@@ -7,7 +7,6 @@
 	extern char devid[9];
 	extern char ip[16];
 	extern char port[5];
-	extern int porti;
 	extern void eraseConfig();
 	extern bool NEEDS_RESET;
 	void getOnline();

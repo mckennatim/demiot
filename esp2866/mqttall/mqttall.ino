@@ -31,56 +31,82 @@ struct STATE {
 	int lolimit=75;
 } st;
 
-void handleMqttIn(char* topic, byte* payload, unsigned int length) {
-  for (int i=0;i<strlen(topic);i++) {
-    itopic[i] = topic[i];
-  }
-  itopic[strlen(topic)] = '\0';  
-  for (int i=0;i<length;i++) {
-    ipayload[i] = (char)payload[i];
-  }
-  ipayload[length] = '\0';
-  NEW_MAIL = 1;
-}
+struct Cmd {
+  bool heat;
+  bool automa;
+  int hilimit;
+  int lolimit;
+  bool empty;
+};
 
-void processIncoming(){
-  Serial.println(itopic);
-  Serial.println(ipayload);
+bool cmdDeserialize(Cmd& data, char* kstr){
   StaticJsonBuffer<200> jsonBuffer;
-  // "{\"heat\":1,\"src\":1,\"empty\":1}"
-  JsonObject& root = jsonBuffer.parseObject(ipayload);
-  bool heat = root["heat"];
-  bool automa = root["auto"];
-  int hilimit = root["hilimit"];
-  int lolimit = root["lolimit"];
-  bool empty = root["empty"];
-  if(heat != st.heat){
-  	st.heat = heat;
-    digitalWrite(ALED, st.heat);
-    HAY_CNG=1;
-  }
-  if(automa != AUTOMA){
-  	AUTOMA = automa;
-    HAY_CNG=1;
-  }
-  if(hilimit > 0 && hilimit != st.hilimit){
-  	st.hilimit = hilimit;
-    HAY_CNG=1;
-  }
-  if(lolimit > 0 && lolimit != st.lolimit){
-  	st.lolimit = lolimit;
-    HAY_CNG=1;
-  }
-  if (empty==1){
-  	eraseConfig();
-    WiFi.mode(WIFI_STA);
-    WiFi.disconnect();
-    delay(100);  
-    NEEDS_RESET=1;    
-  }  
-  NEW_MAIL=0;  
+  JsonObject& root = jsonBuffer.parseObject(kstr);
+  data.heat = root["heat"];
+  data.automa = root["auto"];
+  data.hilimit = root["hilimit"];
+  data.lolimit = root["lolimit"];
+  data.empty = root["empty"];  
+  return root.success();  
 }
 
+void cmdAct(Cmd& cmd){
+  char cmdArr[][15] = {"heat", "automa", "hilimit", "lolimit", "empty"};
+  for(int i=0;i<5;i++){
+    if(cmd.heat != st.heat){
+      st.heat = cmd.heat;
+      digitalWrite(ALED, st.heat);
+      HAY_CNG=1;
+    }
+    if(cmd.automa != AUTOMA){
+      AUTOMA = cmd.automa;
+      HAY_CNG=1;
+    }
+    if(cmd.hilimit > 0 && cmd.hilimit != st.hilimit){
+      st.hilimit = cmd.hilimit;
+      HAY_CNG=1;
+    }
+    if(cmd.lolimit > 0 && cmd.lolimit != st.lolimit){
+      st.lolimit = cmd.lolimit;
+      HAY_CNG=1;
+    }
+    if (cmd.empty==1){
+      eraseConfig();
+      WiFi.mode(WIFI_STA);
+      WiFi.disconnect();
+      delay(100);  
+      NEEDS_RESET=1;    
+    }  
+    NEW_MAIL=0;    
+  }
+}
+
+const int numcmds = 3;
+char incmd[][10]={"clock", "progs", "cmd"};
+
+
+void processInc(){
+  for (int i=0;i<numcmds;i++){
+    if(strcmp(incmd[i], itopic)==0){
+      switch (i){
+        case 0:
+          Serial.println("in clock");
+          break;            
+        case 1:
+          Serial.println("in progs");
+          break;            
+        case 2:
+          Cmd cmd;
+          cmdDeserialize(cmd, ipayload);
+          cmdAct(cmd);
+          break; 
+        default:           
+          Serial.println("in default");
+          break; 
+      }
+    }
+  }
+}
 
 void publishState(){
 	char astr[120];
@@ -145,7 +171,10 @@ long now;
 
 void loop(){
 	server.handleClient();
-	if(NEW_MAIL){processIncoming();}
+	if(NEW_MAIL){
+    processInc();
+    //processIncoming();
+  }
 	if(!client.connected() && !NEEDS_RESET){
 		 mq.reconn(client);
 	}else{

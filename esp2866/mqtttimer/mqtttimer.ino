@@ -5,7 +5,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <TimeLib.h>
-//#include <TimeAlarms.h>
+#include <TimeAlarms.h>
 #include "config.h"
 #include "MQclient.h"
 #include "ProgTimer.h"
@@ -19,6 +19,8 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature DS18B20(&oneWire);
 
 WiFiClient espClient;
+WiFiClient tdClient;
+WiFiClient dmClient;
 PubSubClient client(espClient);
 Console console(devid, client);
 MQclient mq(devid);
@@ -94,6 +96,9 @@ void publishState(){
   if (client.connected()){
     client.publish(status, astr, true);
   }	
+  char hmns[6];
+  sprintf(hmns, "%d:%d", hour(), minute());
+  console.log(hmns);
   Serial.print(status);
 	Serial.println(astr);
 }
@@ -136,15 +141,87 @@ String getTimeDate(){
   }
   return espClient.readStringUntil('\r');
 }
+
+void getServerJSON(char* path, char* jst){
+  strcat(path,devid);
+  Serial.println(path);
+  if (!espClient.connect(ip, atoi(port))) {
+    Serial.println("connection failed");
+  }
+  espClient.print(String("GET ") + path + " HTTP/1.1\r\n" +
+               "Host: " + ip + "\r\n" + 
+               "Connection: close\r\n\r\n");
+  int timeout = millis() + 5000;
+  while (espClient.available() == 0) {
+    if (timeout - millis() < 0) {
+      espClient.stop();
+      Serial.println(">>> Client Timeout !");
+    }
+  }
+  while(espClient.available()){
+    String line= espClient.readStringUntil('\r'); 
+    if(line.indexOf("{")!=-1 || line.indexOf("[")!=-1 ){
+      strcpy(jst,line.c_str());
+    }
+  }
+  //espClient.stop();
+} 
+
+// char kstr[100]
+// getServerJSON("/api/sched/time/", kstr);
+// Serial.println(kstr);
+
+struct TimeData {
+  time_t unix;
+  const char* LLLL;
+  int zone;
+};
+
+bool deserialize(TimeData& data, char* kstr){
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject(kstr);
+  data.unix = root["unix"];
+  data.LLLL = root["LLLL"];
+  data.zone = root["zone"];
+  return root.success();  
+}
+
+void setCloc(TimeData& data){
+  Serial.println(data.unix); 
+  time_t datetime = data.unix + data.zone*60*60;
+  Serial.println(datetime); 
+  setTime(datetime);
+  setSyncInterval(4000000); 
+  Serial.print(hour());
+  Serial.print(":");
+  Serial.print(minute());
+  Serial.print(" ");
+  Serial.print(month());
+  Serial.print("/");
+  Serial.print(day());
+  Serial.print("/");
+  Serial.print(year());
+  Serial.print(" ");
+  Serial.print(weekday(datetime));
+  Serial.println();
+  // Serial.println(datetime);
+  // Serial.println(now());
+  // Serial.println(timeStatus());
+  // Serial.println("closing connection");   
+}
+
+
+
 void getMyTime(){
-  const char* host = "10.0.1.104";
-  const char* url = "/api/time";
-  if (!espClient.connect(host, 3332)) {
+  char url[50] = "/api/sched/time/";
+  strcat(url,devid);
+  console.log(url);
+  if (!espClient.connect(ip, atoi(port))) {
     Serial.println("connection failed");
     return;
   }
   espClient.print(String("GET ") + url + " HTTP/1.1\r\n" +
-               "Host: " + host + "\r\n" + 
+               "Host: " + ip + "\r\n" + 
                "Connection: close\r\n\r\n");
   int timeout = millis() + 5000;
   while (espClient.available() == 0) {
@@ -157,22 +234,20 @@ void getMyTime(){
   char jstr[100];
   while(espClient.available()){
     String line= espClient.readStringUntil('\r'); 
-    Serial.print(line); 
-    if(line.indexOf("{")!=-1){
+    //Serial.print(line); 
+    if(line.indexOf("{")!=-1 || line.indexOf("[")!=-1 ){
       strcpy(jstr,line.c_str());
     }
 
   }
   Serial.println(jstr); 
   StaticJsonBuffer<200> tBuffer;
-  // "
-  //const char* dstr = "{\"datetime\":1458357634659}";
-  const char* dstr = "{\"heat\":1,\"datetime\":1458357634}";
   JsonObject& root = tBuffer.parseObject(jstr);
-  time_t datetime = root["datetime"];  
-  //setTime(datetime);
-  time_t tzone= 4*60*60;
-  datetime=datetime-tzone;
+  time_t unix = root["unix"];  
+  int zone = root["zone"];
+  time_t datetime = unix + zone*60*60;
+  setTime(datetime);
+  setSyncInterval(4000000); 
   Serial.print(hour(datetime));
   Serial.print(":");
   Serial.print(minute(datetime));
@@ -186,7 +261,26 @@ void getMyTime(){
   Serial.print(weekday(datetime));
   Serial.println();
   Serial.println(datetime);
+  Serial.println(now());
+  Serial.println(timeStatus());
   Serial.println("closing connection");  
+}
+
+int aday[][3]= {{6,12,68},
+          {8,20,57},
+          {10,0,68},
+          {11,30,58}
+          };
+int bday[][3]= {6,12,68,8,20,57,10,0,68,11,30,58};
+
+void helpp(){
+  Serial.println("ALARMALARM  ALEARM");
+  Serial.println(aday[1][2]);
+  Serial.println(aday[2][2]);
+}
+
+void getSched(){
+  Serial.println("getting schedule");
 }
 
 void setup(){
@@ -204,13 +298,31 @@ void setup(){
   pinMode(ALED, OUTPUT);
   digitalWrite(ALED, st.heat);
   Serial.println(getTimeDate());
-  getMyTime();
+  //setCloc();
+  //getMyTime();
+  Alarm.alarmOnce(14, 52, 0, helpp);
+  helpp();
+  getSched();
+  // char jso[100];
+  // getServerJSON("/api/sched/senrel/", jso);
+  // Serial.println(jso);
+  // delay(2000);
+  char kstr[100];
+  getServerJSON("/api/sched/time/", kstr);
+  Serial.println(kstr);
+  TimeData data;
+  deserialize(data, kstr);
+  setCloc(data);
+  Serial.println(data.unix);
+  Serial.println(data.LLLL);
+  Serial.println(data.zone);
 }
 
 long before = 0;
 long noww;
 
 void loop(){
+  Alarm.delay(1000);
 	server.handleClient();
 	if(NEW_MAIL){processIncoming();}
 	if(!client.connected() && !NEEDS_RESET){

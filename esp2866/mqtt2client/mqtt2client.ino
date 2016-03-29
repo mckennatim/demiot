@@ -124,7 +124,33 @@ void controlHeat(){
 	}
 }
 
-void setup(){
+void do1thing(){
+  Serial.println("do1thing");
+}
+void do2thing(){
+  Serial.println("do2thing");
+}
+WiFiClient agetClient;
+void getServerJSON(char* path){
+  strcat(path,devid);
+  Serial.println(path);
+  if (!agetClient.connect(ip, atoi(port))) {
+    Serial.println("connection failed");
+  }
+  agetClient.print(String("GET ") + path + " HTTP/1.1\r\n" +
+               "Host: " + ip + "\r\n" + 
+               "Connection: close\r\n\r\n");
+  int timeout = millis() + 5000;
+  while (agetClient.available() == 0) {
+    if (timeout - millis() < 0) {
+      agetClient.stop();
+      Serial.println(">>> Client Timeout !");
+    }
+  }
+} 
+
+
+void setup(){ 
 	Serial.begin(115200);
 	EEPROM.begin(512);
 	Serial.println();
@@ -141,9 +167,12 @@ void setup(){
 }
 
 long before = 0;
+long before10 = 0;
+long before20 = 0;
 long now;
 
 void loop(){
+  
 	server.handleClient();
 	if(NEW_MAIL){processIncoming();}
 	if(!client.connected() && !NEEDS_RESET){
@@ -159,9 +188,28 @@ void loop(){
   		controlHeat();
   	}
   	if(HAY_CNG){
-      console.log("example console.log entry");
   		publishState();
   		HAY_CNG=0;
+  		console.log("example console.log entry");
   	}
-  }	
+  }
+  if (now - before10 > 10000) {
+    before10 = now;
+    do1thing();
+    getServerJSON("/api/sched/senrel/");
+  }
+  if (now - before20 > 15000) {
+    before20 = now;
+    do2thing();
+    getServerJSON("/api/sched/time/");
+  }
+  char jst[140];
+  while(agetClient.available()){
+    String line= agetClient.readStringUntil('\r'); 
+    if(line.indexOf("{")!=-1 || line.indexOf("[")!=-1 ){
+      strcpy(jst,line.c_str());
+    }
+  } 
+  Serial.println(jst);    
+  
 }

@@ -3,6 +3,11 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 29-mqttall
+todo: classes instead of functions in c++
+Tried to run a client as well as mqtt on the esp8266. Went fine for the first `get` request but crashed on the second. Wasted a lot of time and came up with nothing. In the process, got sick of the npm_module copy/delete in duplicating servers so moved all the npm_modules to `www/sbdevstack`. Now on server3 expanding lib/modules/mqqt.js to handle many possible inputs/outputs via their topics. Back on the esp8266, mqttall is being adapted as well.
+### 28-timers
+Can get current time on server with `moment().tz("America/New_York").format()` in a format `2016-03-24T12:48:07-04:00` .What would a timer want for format?
 ### 27-devices-db.spec.js
 added lib/db/devices and tests for db
 ### 26-refactor-server2-modules
