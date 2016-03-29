@@ -27,7 +27,7 @@
 		function uclicked(){
 			//document.getElementById('lue').innerHTML=onoff
 			onoff=!onoff;
-			var thecmd =  "{\"heat\":"+onoff*1+",\"auto\":1,\"hilimit\":85,\"lolimit\":75,\"empty\":0}"
+			var thecmd =  "{\"heat\":"+onoff*1+",\"auto\":1,\"hilimit\":80,\"lolimit\":74,\"empty\":0}"
 			console.log(thecmd);
 			client.publish(cmd, thecmd)
 		}

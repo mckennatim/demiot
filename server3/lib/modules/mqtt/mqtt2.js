@@ -28,8 +28,8 @@ moserver.published = function(packet, client, cb) {
   if (packet.topic.indexOf('echo') === 0) {
     return cb();
   }
-  if(client){console.log(client.id)};
-  console.log(packet.topic)
+  //if(client){console.log(client.id)};
+  //console.log(packet.topic)
   mq.selectAction(packet.topic)
 
   var newPacket = {
@@ -39,20 +39,33 @@ moserver.published = function(packet, client, cb) {
     qos: packet.qos || 0
   };
   currentPacket= newPacket;
-  console.log('newPacket payload',  packet.topic , newPacket.payload.toString());
+  console.log('Pkt',  packet.topic , newPacket.payload.toString());
   // console.log(currentPacket.payload.toString())
   exports.currentPacket
   moserver.publish(newPacket, cb);
 }
 
 var mq = {
-  devid: '',
-  job: '',
   selectAction: function(topic){
     var sp = topic.split("/")
     this.devid = sp[0];
     this.job = sp[1];
-    console.log(this.devid, this.job)
+    //console.log(this.devid, this.job)
+    this[this.job]
   },
+  // devid: {
+  //   CYURD:{
+  //     req: {
+  //       time:
+  //     },
+  //     act:{
 
+  //     },
+  //     time: function(){
+
+  //     },
+  //   }
+  // },
+  job: '',
+  status: ''
 }

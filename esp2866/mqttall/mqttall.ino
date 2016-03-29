@@ -5,11 +5,10 @@
 #include <ArduinoJson.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include "MQclient.h"
+#include "MQclient.h" //globals(extern) NEW_MAIL, itopic, ipayload
+#include "STATE.h"
+#include "Cmd.h"
 
-#define HOAH 14
-#define HOAA 13
-#define ALED 5
 #define ONE_WIRE_BUS 4  // DS18B20 pin
 
 OneWire oneWire(ONE_WIRE_BUS);
@@ -20,66 +19,8 @@ PubSubClient client(espClient);
 Console console(devid, client);
 MQclient mq(devid);
 
-bool AUTOMA=1;
-bool HAY_CNG=1;
-
-struct STATE {
-	int temp1=32;
-	int temp2=40;
-	bool heat=0;
-	int hilimit=85;
-	int lolimit=75;
-} st;
-
-struct Cmd {
-  bool heat;
-  bool automa;
-  int hilimit;
-  int lolimit;
-  bool empty;
-};
-
-bool cmdDeserialize(Cmd& data, char* kstr){
-  StaticJsonBuffer<200> jsonBuffer;
-  JsonObject& root = jsonBuffer.parseObject(kstr);
-  data.heat = root["heat"];
-  data.automa = root["auto"];
-  data.hilimit = root["hilimit"];
-  data.lolimit = root["lolimit"];
-  data.empty = root["empty"];  
-  return root.success();  
-}
-
-void cmdAct(Cmd& cmd){
-  char cmdArr[][15] = {"heat", "automa", "hilimit", "lolimit", "empty"};
-  for(int i=0;i<5;i++){
-    if(cmd.heat != st.heat){
-      st.heat = cmd.heat;
-      digitalWrite(ALED, st.heat);
-      HAY_CNG=1;
-    }
-    if(cmd.automa != AUTOMA){
-      AUTOMA = cmd.automa;
-      HAY_CNG=1;
-    }
-    if(cmd.hilimit > 0 && cmd.hilimit != st.hilimit){
-      st.hilimit = cmd.hilimit;
-      HAY_CNG=1;
-    }
-    if(cmd.lolimit > 0 && cmd.lolimit != st.lolimit){
-      st.lolimit = cmd.lolimit;
-      HAY_CNG=1;
-    }
-    if (cmd.empty==1){
-      eraseConfig();
-      WiFi.mode(WIFI_STA);
-      WiFi.disconnect();
-      delay(100);  
-      NEEDS_RESET=1;    
-    }  
-    NEW_MAIL=0;    
-  }
-}
+STATE st {5, 42, 38, 0, 82, 73, 1, 1, 0};
+//{ALED, temp1, temp2, heat, hilimit, lolimit, AUTOMA, HAY_CNG, NEEDS_RESET}
 
 const int numcmds = 3;
 char incmd[][10]={"clock", "progs", "cmd"};
@@ -96,9 +37,13 @@ void processInc(){
           Serial.println("in progs");
           break;            
         case 2:
+          Serial.println("in cmd");
           Cmd cmd;
-          cmdDeserialize(cmd, ipayload);
-          cmdAct(cmd);
+          cmd.deserialize(ipayload);
+          cmd.act(st);
+          // Cmdd cmd;
+          // cmdDeserialize(cmd, ipayload);
+          // cmdAct(cmd);
           break; 
         default:           
           Serial.println("in default");
@@ -110,7 +55,7 @@ void processInc(){
 
 void publishState(){
 	char astr[120];
-	sprintf(astr, "{\"temp1\":%d, \"temp2\":%d, \"heat\":%d, \"hilimit\":%d, \"lolimit\":%d, \"auto\":%d  }", st.temp1, st.temp2, st.heat, st.hilimit, st.lolimit, AUTOMA);
+	sprintf(astr, "{\"temp1\":%d, \"temp2\":%d, \"heat\":%d, \"hilimit\":%d, \"lolimit\":%d, \"auto\":%d  }", st.temp1, st.temp2, st.heat, st.hilimit, st.lolimit, st.AUTOMA);
 	char status[20];
 	strcpy(status,devid);
 	strcat(status,"/status");
@@ -127,11 +72,11 @@ void readTemps(){
 	int temp2 = (int)DS18B20.getTempFByIndex(1);
 	if(temp1 != st.temp1){
 		st.temp1=temp1;
-		HAY_CNG=1;
+		st.HAY_CNG=1;
 	}
 	if(temp2 != st.temp2){
 		st.temp2=temp2;
-		HAY_CNG=1;
+		st.HAY_CNG=1;
 	}
 }
 
@@ -145,8 +90,8 @@ void controlHeat(){
 	}	
 	if (heat != st.heat){
 		st.heat = heat;
-		digitalWrite(ALED, st.heat);
-		HAY_CNG= 1;
+		digitalWrite(st.ALED, st.heat);
+		st.HAY_CNG= 1;
 	}
 }
 
@@ -160,10 +105,8 @@ void setup(){
   getOnline();
   client.setServer(ip, 1883);
   client.setCallback(handleCallback);  
-	pinMode(HOAH, INPUT);//pullup
-  pinMode(HOAA, INPUT);//pullup
-  pinMode(ALED, OUTPUT);
-  digitalWrite(ALED, st.heat);
+  pinMode(st.ALED, OUTPUT);
+  digitalWrite(st.ALED, st.heat);
 }
 
 long before = 0;
@@ -173,7 +116,6 @@ void loop(){
 	server.handleClient();
 	if(NEW_MAIL){
     processInc();
-    //processIncoming();
   }
 	if(!client.connected() && !NEEDS_RESET){
 		 mq.reconn(client);
@@ -183,14 +125,14 @@ void loop(){
   now = millis();
   if (now - before > 1000) {
   	before = now;
-  	if(AUTOMA){
+  	if(st.AUTOMA){
   		readTemps();
   		controlHeat();
   	}
-  	if(HAY_CNG){
-      console.log("example console.log entry");
+  	if(st.HAY_CNG){
+      //console.log("example console.log entry");
   		publishState();
-  		HAY_CNG=0;
+  		st.HAY_CNG=0;
   	}
   }	
 }

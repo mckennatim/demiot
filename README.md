@@ -3,6 +3,18 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+todo: set time as a class
+### 30-mqtall-Cmd.h
+Each topic can have its own name. Each topics processing can now be handled by a separate class. caveat: handleCallback needs to be a function though I wanted it to be part of a class. It is a `functor` prograam. 
+
+Re webconfig: the process is 
+- disconnect after erase eeprom. 
+- Wait, be sure espAP is not in the network list.
+- connect and look for espAP to show up on the browser list, connect to that network
+- browse 192.168.1.4
+- rewrite eeprom with http://192.168.4.1/config?ssid=street_no_vale2&pwd=jjjjjjjj&devid=CYURD001&ip=10.0.1.104&port=3332
+- disconnect device, wait
+- reconnect and wait for action
 ### 29-mqttall
 todo: classes instead of functions in c++
 Tried to run a client as well as mqtt on the esp8266. Went fine for the first `get` request but crashed on the second. Wasted a lot of time and came up with nothing. In the process, got sick of the npm_module copy/delete in duplicating servers so moved all the npm_modules to `www/sbdevstack`. Now on server3 expanding lib/modules/mqqt.js to handle many possible inputs/outputs via their topics. Back on the esp8266, mqttall is being adapted as well.
