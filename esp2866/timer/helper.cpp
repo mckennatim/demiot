@@ -4,8 +4,10 @@
 void helper_function( void ){
   Serial.println( "Called helper_function" );
 }
+
 os_timer_t myTimer;
 extern bool timerCompleted;
+
 void timerCallback(void *pArg) {
   timerCompleted = true;
 }

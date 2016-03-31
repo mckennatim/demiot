@@ -4,6 +4,8 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 ##
 todo: set time as a class
+### 31-Sched-schedutil-mqtt2
+Created a loop where a an alarm sets off a `Req`uest which is published to the server, picked up in `mqtt2`s `mq.selectAction` which then `mq.processIncoming` based on device and topic. In this case the topic is `time` and it fires us `schedutils` `getTime` which (will eventually goto Mongo to find the timezone for the device) and sends UTC time and the devices zone back on a `devtime` message. Since `MQclient::reconn` has the device `client.subscribe(devt);` , its `handleCallback` grabs the itopic and ipaylod and says `NEW_MAIL`. The device loop picks up that there is new mail and sorts the mail in `processInc` , instanting an `Sched` object to take care of it. Sched deserializes it to its json keys and then act `setClock` .
 ### 30-mqtall-Cmd.h
 Each topic can have its own name. Each topics processing can now be handled by a separate class. caveat: handleCallback needs to be a function though I wanted it to be part of a class. It is a `functor` prograam. 
 

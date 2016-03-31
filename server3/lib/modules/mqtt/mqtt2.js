@@ -2,6 +2,7 @@ var mosca = require('mosca')
 var env = require('../../../../env.json')
 var cfg= env[process.env.NODE_ENV||'development']
 var currentPacket = {dog: "uli"};
+var sched =require('../schedule/schedutil')
 
 var pubsubsettings = {
   //using ascoltatore
@@ -31,6 +32,7 @@ moserver.published = function(packet, client, cb) {
   //if(client){console.log(client.id)};
   //console.log(packet.topic)
   mq.selectAction(packet.topic)
+  mq.processIncoming()
 
   var newPacket = {
     topic: 'echo/' + packet.topic,
@@ -53,19 +55,26 @@ var mq = {
     //console.log(this.devid, this.job)
     this[this.job]
   },
-  // devid: {
-  //   CYURD:{
-  //     req: {
-  //       time:
-  //     },
-  //     act:{
-
-  //     },
-  //     time: function(){
-
-  //     },
-  //   }
-  // },
+  processIncoming: function(){
+    switch(this.job){
+      case "dog":
+        console.log("dog")
+        break
+      case "cmd":
+        console.log("cmd")
+        break
+      case "time":
+        console.log("time")
+        sched.getTime(this.devid, moserver)
+        break
+      case "sched":
+        console.log("sched")
+        break
+      case "dog":
+        console.log("dog")
+        break
+    }
+  },
   job: '',
-  status: ''
+  devid: ''
 }

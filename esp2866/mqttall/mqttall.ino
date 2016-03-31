@@ -5,9 +5,13 @@
 #include <ArduinoJson.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <TimeLib.h>
+#include <TimeAlarms.h>
 #include "MQclient.h" //globals(extern) NEW_MAIL, itopic, ipayload
 #include "STATE.h"
 #include "Cmd.h"
+#include "Reqs.h"
+#include "Sched.h"
 
 #define ONE_WIRE_BUS 4  // DS18B20 pin
 
@@ -17,21 +21,26 @@ DallasTemperature DS18B20(&oneWire);
 WiFiClient espClient;
 PubSubClient client(espClient);
 Console console(devid, client);
+Reqs req(devid, client);
 MQclient mq(devid);
 
 STATE st {5, 42, 38, 0, 82, 73, 1, 1, 0};
 //{ALED, temp1, temp2, heat, hilimit, lolimit, AUTOMA, HAY_CNG, NEEDS_RESET}
 
 const int numcmds = 3;
-char incmd[][10]={"clock", "progs", "cmd"};
+char incmd[][10]={"devtime", "progs", "cmd"};
 
 
 void processInc(){
+  Serial.println(itopic);
   for (int i=0;i<numcmds;i++){
     if(strcmp(incmd[i], itopic)==0){
       switch (i){
         case 0:
-          Serial.println("in clock");
+          Serial.println("in devtime");
+          Sched sched;
+          sched.deserialize(ipayload);
+          sched.act(st);
           break;            
         case 1:
           Serial.println("in progs");
@@ -41,9 +50,6 @@ void processInc(){
           Cmd cmd;
           cmd.deserialize(ipayload);
           cmd.act(st);
-          // Cmdd cmd;
-          // cmdDeserialize(cmd, ipayload);
-          // cmdAct(cmd);
           break; 
         default:           
           Serial.println("in default");
@@ -95,6 +101,12 @@ void controlHeat(){
 	}
 }
 
+void Repeats(){
+  Serial.println("alarm repeated");
+  console.log("alarm repeated");
+  req.stime();
+}
+
 void setup(){
 	Serial.begin(115200);
 	EEPROM.begin(512);
@@ -107,12 +119,14 @@ void setup(){
   client.setCallback(handleCallback);  
   pinMode(st.ALED, OUTPUT);
   digitalWrite(st.ALED, st.heat);
+  Alarm.timerRepeat(15, Repeats); 
 }
 
-long before = 0;
-long now;
+time_t before = 0;
+time_t inow;
 
 void loop(){
+  Alarm.delay(100);
 	server.handleClient();
 	if(NEW_MAIL){
     processInc();
@@ -122,9 +136,9 @@ void loop(){
 	}else{
 		client.loop();
 	}
-  now = millis();
-  if (now - before > 1000) {
-  	before = now;
+  inow = millis();
+  if (inow - before > 1000) {
+  	before = inow;
   	if(st.AUTOMA){
   		readTemps();
   		controlHeat();

@@ -29,9 +29,14 @@ void MQclient::reconn(PubSubClient& client) {
   if (client.connect(cdevid)) {
     Serial.println("connected");
     char ccmd[20];
+    char devt[25];
     strcpy(ccmd, cdevid);
-  	strcat(ccmd,"/cmd");
+    strcat(ccmd,"/cmd");
+    strcpy(devt, cdevid);
+    strcat(devt,"/devtime");
     client.subscribe(ccmd);
+    client.subscribe(devt);
+    Serial.println(devt);
     return;
   } else {
     Serial.print("failed, rc=");

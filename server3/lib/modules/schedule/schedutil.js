@@ -1,4 +1,8 @@
+var moment = require('moment-timezone');
 
+var cb=function(){
+	console.log("in cb")
+}
 
 var flattenProgObj =function(progs){	
 	a=[]
@@ -32,7 +36,32 @@ var parseProg =function(prog){
 	console.log(prog)
 }
 
+var getTime = function(devid, mosca, cb){
+	console.log("it's 4 oclock")
+  console.log(Date.now())
+  console.log(typeof(Date.now()))
+  var nynf = parseInt(moment().tz("America/New_York").format("X"))
+  var nyf = moment().tz("America/New_York").format('LLLL')
+  var nyz = parseInt(moment().tz("America/New_York").format('Z'))
+  var pkt = {
+  	unix: nynf,
+  	LLLL: nyf,
+  	zone: nyz,
+  };	
+	console.log(JSON.stringify(pkt))
+	var topi = devid+'/devtime'
+	var oPacket = {
+		topic: topi,
+		payload: JSON.stringify(pkt),
+		retain: false,
+		qos: 0
+  };
+  console.log(topi) 
+  mosca.publish(oPacket, cb);
+}
+
 module.exports ={
 	flattenProgObj: flattenProgObj,
-	parseProg: parseProg
+	parseProg: parseProg,
+	getTime: getTime
 }
