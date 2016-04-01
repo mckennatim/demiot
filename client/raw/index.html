@@ -22,7 +22,7 @@
 		const deviceId ='CYURD001'
 		const statu = deviceId+'/status'
 		const cmd = deviceId +'/cmd'
-		const devt = deviceId +'/devtime'
+		const devt = deviceId +'/time'
 		var client = mqtt.connect('ws://10.0.1.104:3333')
 
 		var onoff = 1
@@ -39,13 +39,14 @@
 			client.publish(cmd, thecmd)			
 		}
 		function devtime(){
-			var thecmd =  "{time: someytime, zone: phone}"
+			var thecmd =  "trigger time from web cliient"
 			console.log(thecmd);
 			client.publish(devt, thecmd)			
 		}
 		client.on('connect', function(){
 			console.log('maybe connected')
 			client.subscribe(statu) 
+			client.subscribe("CYURD001/progs")
 			client.on('message', function(topic, payload) {
 				var pls = payload.toString()
 				var plo = JSON.parse(pls)

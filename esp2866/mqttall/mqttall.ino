@@ -44,6 +44,11 @@ void processInc(){
           break;            
         case 1:
           Serial.println("in progs");
+          Serial.println(itopic);
+          Serial.println(ipayload);
+          sched.deseriProgs(ipayload);
+          sched.actProgs(st);
+          NEW_MAIL=0;
           break;            
         case 2:
           Serial.println("in cmd");
@@ -119,7 +124,8 @@ void setup(){
   client.setCallback(handleCallback);  
   pinMode(st.ALED, OUTPUT);
   digitalWrite(st.ALED, st.heat);
-  Alarm.timerRepeat(15, Repeats); 
+  //Alarm.timerRepeat(25, Repeats);
+  req.stime(); 
 }
 
 time_t before = 0;

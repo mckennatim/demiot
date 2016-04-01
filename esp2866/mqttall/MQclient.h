@@ -19,8 +19,8 @@ public:
 	void handleCallback(char* topic, byte* payload, unsigned int length);
 };
 
-extern char itopic[16];
-extern char ipayload[80];
+extern char itopic[40];
+extern char ipayload[250];
 extern bool NEW_MAIL;
 void handleCallback(char* topic, byte* payload, unsigned int length);
 

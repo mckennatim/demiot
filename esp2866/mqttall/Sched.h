@@ -9,6 +9,9 @@ class Sched{
 public:
 	bool deserialize(char* kstr); 
 	void act(STATE& st);
+	bool deseriProgs(char* kstr); 
+	void actProgs(STATE& st);
+	int t0arr[30]; 
 private:
   time_t unix;
   const char* LLLL;

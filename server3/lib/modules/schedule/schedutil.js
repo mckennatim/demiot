@@ -58,6 +58,39 @@ var getTime = function(devid, mosca, cb){
   };
   console.log(topi) 
   mosca.publish(oPacket, cb);
+  setTimeout(function(){
+  	sendSchedule(devid, mosca, cb)
+  }, 1000)
+	//(devid, mosca, cb)  ;
+}
+
+var sendSchedule= function(devid, mosca, cb){
+	var sched = [		
+		{temp0: [
+	  	[6,12,68],
+			[8,20,57],
+			[22,0,68],
+			[23,30,58]]
+		},
+		{temp1: [
+	  	[6,0,67],
+			[9,20,57],
+			[18,0,68],
+			[21,30,58]]
+		}
+	]
+	var sched2 = [{temp0: {vals:[6,12,68,8,20,57,22,0,68,23,30,58], col:3}},
+		{temp1: {vals: [6,0,67,9,20,57,18,0,68,21,30,58], col:3}}]
+	console.log(sched[0].temp0[1][1])
+	var topi = devid+'/progs'
+	var oPacket = {
+		topic: topi,
+		payload: JSON.stringify(sched),
+		retain: false,
+		qos: 0
+  };
+  console.log(topi) 
+  mosca.publish(oPacket, cb);		
 }
 
 module.exports ={

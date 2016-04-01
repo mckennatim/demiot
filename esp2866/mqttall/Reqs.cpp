@@ -9,7 +9,7 @@ Reqs::Reqs(char* devid, PubSubClient& client ){
 }
 
 void Reqs::stime(){
-	char* dd = "the time is now";
+	char* dd = "the time is being requested";
 	Serial.println(dd);
 	char time[20];
 	strcpy(time,cdevid);

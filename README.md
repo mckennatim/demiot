@@ -3,7 +3,100 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
-todo: set time as a class
+### 32-ArduinoJson
+#### <a href="https://github.com/bblanchon/ArduinoJson/issues/251">parsing array of objects of multidimensional arrays</a>
+My checklist for ArduinoJson
+- make sure the json string is good and working in outside prog
+- remember, you pass in a pointer to a char[] in deserialize. If you want to test inside the function use char[] for your test json
+- use `DynamicJsonBuffer` until everything checks out 
+- `prettyPrintTo(Serial)` is your friend, use it right away at the first parse
+
+My test code below is full of all these uneccessary things that helped me understand this.
+
+      int t0[4][3];
+      int t1[4][3];
+
+      bool Sched::deseriProgs(char* kstr){
+        StaticJsonBuffer<600> jsonBuffer2;
+        JsonArray& root = jsonBuffer2.parseArray(kstr);
+        JsonArray& temp0 = root[0]["temp0"];
+        JsonArray& temp1 = root[1]["temp1"];
+        for(int i = 0; i<4; i++){
+          for (int j = 0; j<3; j++){
+            t0[i][j]=temp0[i][j];
+          }
+        }
+        for(int i = 0; i<4; i++){
+          for (int j = 0; j<3; j++){
+            t1[i][j]=temp1[i][j];
+          }
+        }
+        return root.success();
+      }
+
+      bool Sched::deseriProgs(char* kstr){
+        Serial.println("in deseriprogs");
+        char k[] = "[{\"temp0\":[[6,12,68],[8,20,57]]},{\"temp1\":[[6,0,67],[18,0,68],[21,30,58]]}]";
+        StaticJsonBuffer<600> jsonBuffer2;
+        //DynamicJsonBuffer jsonBuffer2;
+        JsonArray& root = jsonBuffer2.parseArray(kstr);
+        root.prettyPrintTo(Serial);
+        JsonArray& temp0 = root[0]["temp0"];
+        temp0.prettyPrintTo(Serial);
+        JsonArray& temp1 = root[1]["temp1"];
+        temp0[1][2].prettyPrintTo(Serial);
+        Serial.print("the # of 3tuples is: ");
+        Serial.println(temp0[0].size());
+        Serial.println("temp0");  
+        for(int i = 0; i<4; i++){
+          Serial.print("[");
+          for (int j = 0; j<3; j++){
+            t0[i][j]=temp0[i][j];
+            Serial.print(t0[i][j]);
+            Serial.print(",");
+          }
+          Serial.print("]");
+          Serial.println("");
+        }
+        Serial.println("temp1");  
+        for(int i = 0; i<4; i++){
+          Serial.print("[");
+          for (int j = 0; j<3; j++){
+            t1[i][j]=temp1[i][j];
+            Serial.print(t1[i][j]);
+            Serial.print(",");
+          }
+          Serial.print("]");
+          Serial.println("");
+        }
+        return 1;
+      }
+
+      temp0
+      [6,12,68,]
+      [8,20,57,]
+      [22,0,68,]
+      [23,30,58,]
+      temp1
+      [6,0,67,]
+      [9,20,57,]
+      [18,0,68,]
+      [21,30,58,]
+
+
+Not sure if this type of JSON will work. If each object was just an array it will work but not if each object references a multidimensional array. 
+
+    char* k = "[{\"temp0\":[[6,12,68],[8,20,57]]},{\"temp1\":[[6,0,67],[18,0,68],[21,30,58]]}]";
+    StaticJsonBuffer<200> jsonBuffer;
+    JsonArray& array = jsonBuffer.parseArray(k);
+    array.prettyPrintTo(Serial); //[]
+    Serial.println(array.size()); //0   
+    JsonObject& temp0 = array[0]["temp0"];
+    temp0.prettyPrintTo(Serial); //{}
+
+btw: I love ArduinoJson. 
+
+todo: get schedule with time
 ### 31-Sched-schedutil-mqtt2
 Created a loop where a an alarm sets off a `Req`uest which is published to the server, picked up in `mqtt2`s `mq.selectAction` which then `mq.processIncoming` based on device and topic. In this case the topic is `time` and it fires us `schedutils` `getTime` which (will eventually goto Mongo to find the timezone for the device) and sends UTC time and the devices zone back on a `devtime` message. Since `MQclient::reconn` has the device `client.subscribe(devt);` , its `handleCallback` grabs the itopic and ipaylod and says `NEW_MAIL`. The device loop picks up that there is new mail and sorts the mail in `processInc` , instanting an `Sched` object to take care of it. Sched deserializes it to its json keys and then act `setClock` .
 ### 30-mqtall-Cmd.h

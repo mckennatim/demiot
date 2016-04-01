@@ -2,8 +2,8 @@
 #include <Arduino.h>
 #include <PubSubClient.h>
 
-char itopic[16];
-char ipayload[80];
+char itopic[40];
+char ipayload[250];
 bool NEW_MAIL=0;
 
 Console::Console(char* devid, PubSubClient& client ){
@@ -29,14 +29,18 @@ void MQclient::reconn(PubSubClient& client) {
   if (client.connect(cdevid)) {
     Serial.println("connected");
     char ccmd[20];
-    char devt[25];
     strcpy(ccmd, cdevid);
     strcat(ccmd,"/cmd");
+    char devt[25];
     strcpy(devt, cdevid);
     strcat(devt,"/devtime");
+    char progs[25];
+    strcpy(progs, cdevid);
+    strcat(progs,"/progs");
     client.subscribe(ccmd);
     client.subscribe(devt);
-    Serial.println(devt);
+    client.subscribe(progs);
+    Serial.println(progs);
     return;
   } else {
     Serial.print("failed, rc=");
