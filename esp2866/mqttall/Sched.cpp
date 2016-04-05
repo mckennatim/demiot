@@ -8,6 +8,9 @@
 #include "MQclient.h" //for extern NEW_MAIL
 #include "STATE.h"
 
+char * schedArr[]={"temp1","temp2","tmr1","tmr2","tmr3"};
+//int NEW_ALARM = -1;
+
 bool Sched::deserialize(char* kstr){
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject(kstr);
@@ -18,7 +21,7 @@ bool Sched::deserialize(char* kstr){
   return root.success();
 }
 
-void Sched::act(STATE& st){
+void Sched::actTime(STATE& st){
 	Serial.println(unix);
 	Serial.println(LLLL);
 	Serial.println(zone);
@@ -30,73 +33,122 @@ void Sched::act(STATE& st){
 	NEW_MAIL=0;
 }
 
-int t0[4][3];
-int t1[4][3];
+int Sched::idxOsenrels(int j){
+	for(int i=0;i<seresz;i++){
+		if(senrels[i]==j){
+			return i;
+		} 
+	} 
+}
 
 bool Sched::deseriProgs(char* kstr){
-	StaticJsonBuffer<600> jsonBuffer2;
-	JsonArray& root = jsonBuffer2.parseArray(kstr);
-	JsonArray& temp0 = root[0]["temp0"];
-	JsonArray& temp1 = root[1]["temp1"];
-	for(int i = 0; i<4; i++){
-		for (int j = 0; j<3; j++){
-			t0[i][j]=temp0[i][j];
-		}
+	//DynamicJsonBuffer jsonBuffer;
+  StaticJsonBuffer<1000> jsonBuffer;
+	JsonObject& rot = jsonBuffer.parseObject(kstr);
+	JsonArray& sere = rot["serels"];
+	JsonArray& root = rot["progs"];
+	seresz = sere.size();
+	for(int h=0;h<seresz;h++){
+		senrels[h] = sere[h];
 	}
-	for(int i = 0; i<4; i++){
-		for (int j = 0; j<3; j++){
-			t1[i][j]=temp1[i][j];
+	nsr = root.size();
+	Serial.println("");  
+	Serial.print("the # of sinks is: ");
+	Serial.println(nsr);	
+	for(int i = 0; i<nsr; i++){
+		JsonArray& asnk = root[i]; //asnk[4][3]
+		events[i] = root[i].size(); //4
+		Serial.println(schedArr[idxOsenrels(i)]);
+		// Serial.println(idxOsenrels(i));
+		for(int j = 0; j<events[i]; j++){//4
+			int bsz = asnk[j].size();
+			haynRset[j] = bsz-2;
+			for(int k=0; k<bsz;k++){
+				progs[i][j][k] = asnk[j][k];
+				Serial.print(progs[i][j][k]);
+				Serial.print(",");
+			}
+			Serial.println("");  
 		}
+		Serial.println("");  
 	}
-  return root.success();
+	Serial.println(progs[0][1][2]);
+	Serial.println(progs[1][1][2]);
+  return rot.success();
 }
-// bool Sched::deseriProgs(char* kstr){
-// 	Serial.println("in deseriprogs");
-// 	char k[] = "[{\"temp0\":[[6,12,68],[8,20,57]]},{\"temp1\":[[6,0,67],[18,0,68],[21,30,58]]}]";
-// 	StaticJsonBuffer<600> jsonBuffer2;
-// 	//DynamicJsonBuffer jsonBuffer2;
-// 	JsonArray& root = jsonBuffer2.parseArray(kstr);
-// 	root.prettyPrintTo(Serial);
-// 	JsonArray& temp0 = root[0]["temp0"];
-// 	temp0.prettyPrintTo(Serial);
-// 	JsonArray& temp1 = root[1]["temp1"];
-// 	temp0[1][2].prettyPrintTo(Serial);
-// 	Serial.print("the # of 3tuples is: ");
-// 	Serial.println(temp0[0].size());
-// 	Serial.println("temp0");	
-// 	for(int i = 0; i<4; i++){
-// 		Serial.print("[");
-// 		for (int j = 0; j<3; j++){
-// 			t0[i][j]=temp0[i][j];
-// 			Serial.print(t0[i][j]);
-// 			Serial.print(",");
-// 		}
-// 		Serial.print("]");
-// 		Serial.println("");
-// 	}
-// 	Serial.println("temp1");	
-// 	for(int i = 0; i<4; i++){
-// 		Serial.print("[");
-// 		for (int j = 0; j<3; j++){
-// 			t1[i][j]=temp1[i][j];
-// 			Serial.print(t1[i][j]);
-// 			Serial.print(",");
-// 		}
-// 		Serial.print("]");
-// 		Serial.println("");
-// 	}
-//   return 1;
-// }
 
-void Sched::actProgs(STATE& st){
-	int aday[4][3]= {{6,12,68},
-	          {8,20,57},
-	          {10,0,68},
-	          {11,30,58}
-	          };
-	int bday[][3]= {6,12,68,8,20,57,10,0,68,11,30,58};	
-	Serial.println("in act progs");
-	Serial.println(aday[1][2]);
-	Serial.println(bday[1][2]);
-	NEW_MAIL=0;
+void Sched::resetAlarm(int i, int &cur){
+	//int cur =0;
+	Serial.println("in resetAlarm");
+	int idx = senrels[i];
+	char senrel[10];
+	strcpy(senrel,schedArr[i]);
+	for(int j=0; j<events[idx];j++){
+		if (hour() == progs[idx][j][0]){
+			if (progs[idx][j][1] > minute()){
+				cur = j;
+				break;
+			}
+		}
+		if (progs[idx][j][0] > hour()){
+			cur= j;
+			break;
+		}
+	}
+	Serial.println(cur);
+	Serial.println(senrel);
+	Serial.print(hour());
+	Serial.print(":");
+	Serial.print(minute());
+	Serial.println();
+	Serial.print("[");
+	Serial.print(progs[idx][cur][0]);
+	Serial.print(":");
+	Serial.print(progs[idx][cur][1]);
+	Serial.print("->");
+	Serial.print(progs[idx][cur][2]);
+	Serial.println("]");
+	//actProgs(i, cur);
 }
+
+void Sched::actProgs(int idx, int cur, STATE& st){
+	int ii = senrels[idx];
+	switch(idx){
+		case 0:
+			Serial.println("case temp1");
+			// Serial.println(cur);
+			// Serial.println(85);
+			// Serial.println(progs[0][2][2]);
+			// Serial.println(progs[ii][cur-1][2]);
+			// Serial.println(progs[ii][cur-1][3]);
+			st.hilimit = progs[ii][cur-1][2];
+			st.lolimit = progs[ii][cur-1][3];
+			st.HAY_CNG=1;
+			Alarm.alarmOnce(progs[ii][cur][0],progs[ii][cur][0], 0, cbtemp1);
+			break;
+		case 1:
+			Serial.println("case temp2");
+			break;
+		case 2:
+			Serial.println("case tmr1 is up");
+			Alarm.alarmOnce(progs[ii][cur][0],progs[ii][cur][0], 0, cbtmr1);
+			break;
+		case 3:
+			Serial.println("case tmr2");
+			break;
+		case 4:
+			Serial.println("case tmr3");
+			break;
+	}
+	NEW_MAIL=0;
+	NEW_ALARM=-1;
+}
+
+void cbtmr1(){
+	NEW_ALARM=2;
+}
+void cbtemp1(){
+	NEW_ALARM=0;
+}
+
+

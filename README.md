@@ -3,6 +3,8 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 33-resetAlarms-actProgs
+There is an individual callback for each of the programmable elements in schedArr[] When programs come over the wire (once a day probably, now implemented as a ui button that) schedutil.js get(s)Time to the device then after a second sendSchedule to the device. The device deseriProgs when they come in and then goes through al the incoming schedules and bootstraps them, setting alarms and device state based on the the current time and what's on the schedule. After that whenever an alarm finishes it sends a callback which sets a flag saying which alarm needs to be reset.
 ### 32-ArduinoJson
 #### <a href="https://github.com/bblanchon/ArduinoJson/issues/251">parsing array of objects of multidimensional arrays</a>
 My checklist for ArduinoJson

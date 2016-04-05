@@ -24,12 +24,23 @@ Console console(devid, client);
 Reqs req(devid, client);
 MQclient mq(devid);
 
+int NEW_ALARM = -1;
 STATE st {5, 42, 38, 0, 82, 73, 1, 1, 0};
 //{ALED, temp1, temp2, heat, hilimit, lolimit, AUTOMA, HAY_CNG, NEEDS_RESET}
+Sched sched;
+
 
 const int numcmds = 3;
 char incmd[][10]={"devtime", "progs", "cmd"};
 
+void acb(){
+  int i=0;
+  switch(i){
+    case 0:
+      Serial.println("RING RING RING");
+      Alarm.alarmOnce(hour(), minute()+1,0,acb);
+  }
+}
 
 void processInc(){
   Serial.println(itopic);
@@ -38,16 +49,23 @@ void processInc(){
       switch (i){
         case 0:
           Serial.println("in devtime");
-          Sched sched;
           sched.deserialize(ipayload);
-          sched.act(st);
+          sched.actTime(st);
           break;            
         case 1:
           Serial.println("in progs");
           Serial.println(itopic);
           Serial.println(ipayload);
           sched.deseriProgs(ipayload);
-          sched.actProgs(st);
+          //sched.bootstrapSched();
+          for(int i = 0; i<sched.seresz; i++){
+            if (sched.senrels[i]<99){
+              int cur = 0;
+              sched.resetAlarm(i, cur);
+              sched.actProgs(i, cur, st);              
+            }
+          }
+          Alarm.alarmOnce(hour(), minute()+1,0,cbtmr1);
           NEW_MAIL=0;
           break;            
         case 2:
@@ -106,12 +124,6 @@ void controlHeat(){
 	}
 }
 
-void Repeats(){
-  Serial.println("alarm repeated");
-  console.log("alarm repeated");
-  req.stime();
-}
-
 void setup(){
 	Serial.begin(115200);
 	EEPROM.begin(512);
@@ -124,7 +136,6 @@ void setup(){
   client.setCallback(handleCallback);  
   pinMode(st.ALED, OUTPUT);
   digitalWrite(st.ALED, st.heat);
-  //Alarm.timerRepeat(25, Repeats);
   req.stime(); 
 }
 
@@ -132,6 +143,11 @@ time_t before = 0;
 time_t inow;
 
 void loop(){
+  if(NEW_ALARM>-1){
+    int cur = 0;
+    sched.resetAlarm(NEW_ALARM, cur);
+    sched.actProgs(NEW_ALARM, cur, st);
+  }
   Alarm.delay(100);
 	server.handleClient();
 	if(NEW_MAIL){
