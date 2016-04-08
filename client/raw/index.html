@@ -18,12 +18,18 @@
 	<button id="button" onclick="uclicked()">toggle device</button>
 	<button id="button2" onclick="empty()">empty eeprom</button><br><br>
 	<button id="button3" onclick="devtime()">devtime</button>
+	<button id="button3" onclick="sendSchedule()">send schedule</button><br>
+	with timer2 starting in one min <br> and going for 
+	<input type="text" id="tbox" value=15 size="3" onchange="vchanged()">
 	<script>
 		const deviceId ='CYURD001'
 		const statu = deviceId+'/status'
 		const cmd = deviceId +'/cmd'
 		const devt = deviceId +'/time'
+		const sched = deviceId +'/sched'
 		var client = mqtt.connect('ws://10.0.1.104:3333')
+		var v = document.getElementById("tbox")
+		//console.log(v.value)
 
 		var onoff = 1
 		function uclicked(){
@@ -41,7 +47,30 @@
 		function devtime(){
 			var thecmd =  "trigger time from web cliient"
 			console.log(thecmd);
+			console.log(devt);
 			client.publish(devt, thecmd)			
+		}
+		function vchanged(){
+			//console.log("val changed")
+		}
+		function sendSchedule(){
+			//console.log(v.value);
+			var d = new Date();
+			var d0 = Date.now()+60000
+			var d2 = new Date(d0);
+
+			var setmin = v.value
+			var d3 = new Date(d0+ 60000*setmin);
+			console.log(d);
+			var hr = d2.getHours();
+			var mi = d2.getMinutes();
+			var hr3 = d3.getHours();
+			var mi3 = d3.getMinutes();
+			console.log(`${d2} - ${hr}:${mi}`)
+			console.log(`${d3} - ${hr3}:${mi3}`)
+			var thecmd =  "{\"serels\":[0,99,1,2],\"progs\":[[[0,0,80,77],[6,12,82,75],[8,20,85,75],[22,0,78,74],[23,30,85,75]],[[0,0,58],[18,0,68],[21,30,58]],[[0,0,0],["+hr+","+mi+",1],["+hr3+","+mi3+",0]]]}";
+			console.log(thecmd);
+			client.publish(sched, thecmd)			
 		}
 		client.on('connect', function(){
 			console.log('maybe connected')

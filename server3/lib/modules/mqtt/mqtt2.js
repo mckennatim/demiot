@@ -32,7 +32,7 @@ moserver.published = function(packet, client, cb) {
   //if(client){console.log(client.id)};
   //console.log(packet.topic)
   mq.selectAction(packet.topic)
-  mq.processIncoming()
+  mq.processIncoming(packet.payload)
 
   var newPacket = {
     topic: 'echo/' + packet.topic,
@@ -42,7 +42,7 @@ moserver.published = function(packet, client, cb) {
   };
   currentPacket= newPacket;
   console.log('Pkt',  packet.topic , newPacket.payload.toString());
-  // console.log(currentPacket.payload.toString())
+  //console.log(currentPacket.payload.toString())
   exports.currentPacket
   moserver.publish(newPacket, cb);
 }
@@ -55,7 +55,7 @@ var mq = {
     //console.log(this.devid, this.job)
     this[this.job]
   },
-  processIncoming: function(){
+  processIncoming: function(payload){
     switch(this.job){
       case "dog":
         console.log("dog")
@@ -69,6 +69,7 @@ var mq = {
         break
       case "sched":
         console.log("sched")
+        sched.sendSchedule(this.devid, moserver, payload)
         break
       case "dog":
         console.log("dog")

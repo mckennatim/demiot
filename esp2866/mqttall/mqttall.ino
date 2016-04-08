@@ -9,6 +9,7 @@
 #include <TimeAlarms.h>
 #include "MQclient.h" //globals(extern) NEW_MAIL, itopic, ipayload
 #include "STATE.h"
+#include "TMR.h"
 #include "Cmd.h"
 #include "Reqs.h"
 #include "Sched.h"
@@ -27,6 +28,8 @@ MQclient mq(devid);
 int NEW_ALARM = -1;
 STATE st {5, 42, 38, 0, 82, 73, 1, 1, 0};
 //{ALED, temp1, temp2, heat, hilimit, lolimit, AUTOMA, HAY_CNG, NEEDS_RESET}
+TMR tmr {0,0,0,3,15,0};
+//timr1, timr2, timr3, numtmrs, crement, IS_ON
 Sched sched;
 
 
@@ -58,15 +61,18 @@ void processInc(){
           Serial.println(ipayload);
           sched.deseriProgs(ipayload);
           //sched.bootstrapSched();
-          for(int i = 0; i<sched.seresz; i++){
-            if (sched.senrels[i]<99){
-              int cur = 0;
-              sched.resetAlarm(i, cur);
-              sched.actProgs(i, cur, st);              
-            }
-          }
-          Alarm.alarmOnce(hour(), minute()+1,0,cbtmr1);
+          // for(int i = 0; i<sched.seresz; i++){
+          //   if (sched.senrels[i]<99){
+          //     int cur = 0;
+          //     sched.resetAlarm(i, cur);
+          //     sched.actProgs(i, cur, st, tmr);              
+          //   }
+          // }
+
+          // Alarm.alarmOnce(hour(), minute()+1,0,acb);
           NEW_MAIL=0;
+          NEW_ALARM=12;
+          sched.actProgs2(tmr);
           break;            
         case 2:
           Serial.println("in cmd");
@@ -124,6 +130,10 @@ void controlHeat(){
 	}
 }
 
+void cbtemp0(){
+  Serial.println("triggered cbtemp0 callback");
+}
+
 void setup(){
 	Serial.begin(115200);
 	EEPROM.begin(512);
@@ -133,21 +143,34 @@ void setup(){
   Serial.println("--------------------------");
   getOnline();
   client.setServer(ip, 1883);
-  client.setCallback(handleCallback);  
+  client.setCallback(handleCallback); 
+  mq.reconn(client); 
   pinMode(st.ALED, OUTPUT);
   digitalWrite(st.ALED, st.heat);
-  req.stime(); 
+  req.stime();
+  
+  // Serial.println("should have time");
+  // Serial.print(hour());
+  // Serial.print(":"); 
+  // Serial.println(minute()); 
+  // Alarm.alarmOnce(hour(),minute()+1, 0, cbtemp0);
 }
 
+
+
 time_t before = 0;
+time_t schedcrement = 0;
 time_t inow;
 
 void loop(){
-  if(NEW_ALARM>-1){
-    int cur = 0;
-    sched.resetAlarm(NEW_ALARM, cur);
-    sched.actProgs(NEW_ALARM, cur, st);
+  if(NEW_ALARM>0){
+    sched.actProgs2(tmr);
   }
+  // if(NEW_ALARM>-1){
+  //   int cur = 0;
+  //   sched.resetAlarm(NEW_ALARM, cur);
+  //   sched.actProgs(NEW_ALARM, cur, st, tmr);
+  // }
   Alarm.delay(100);
 	server.handleClient();
 	if(NEW_MAIL){
@@ -159,6 +182,10 @@ void loop(){
 		client.loop();
 	}
   inow = millis();
+  if(inow-schedcrement > tmr.crement*1000){
+    schedcrement = inow;
+    sched.updateTmrs(tmr, client);
+  }
   if (inow - before > 1000) {
   	before = inow;
   	if(st.AUTOMA){
