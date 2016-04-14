@@ -8,7 +8,10 @@
 	<style type="text/css" media="screen">
 		#temp1 {
 			font-size: 2em;
-		}		
+		}	
+		span {
+			font-size: 1.4em;
+		}	
 	</style>	
 </head>
 <body>
@@ -20,15 +23,26 @@
 	<button id="button3" onclick="devtime()">devtime</button>
 	<button id="button3" onclick="sendSchedule()">send schedule</button><br>
 	with timer2 starting in one min <br> and going for 
-	<input type="text" id="tbox" value=15 size="3" onchange="vchanged()">
+	<input type="text" id="tbox" value=15 size="3" onchange="vchanged()"><br>
+	<div>
+	Timer display updates every 
+	<input type="text" id="crement" value=5 size="3" onchange="newCrement()">
+	seconds <br>
+	<span>Timer 1: </span><span id="timr1"></span><br>
+	<span>Timer 2: </span><span id="timr2"></span><br>
+	<span>Timer 3: </span><span id="timr3"></span><br>
+	</div>
 	<script>
 		const deviceId ='CYURD001'
 		const statu = deviceId+'/status'
+		const tmr = deviceId+'/tmr'
+		const progs = deviceId+'/progs'
 		const cmd = deviceId +'/cmd'
 		const devt = deviceId +'/time'
 		const sched = deviceId +'/sched'
 		var client = mqtt.connect('ws://10.0.1.104:3333')
 		var v = document.getElementById("tbox")
+		var crement=10;
 		//console.log(v.value)
 
 		var onoff = 1
@@ -53,8 +67,13 @@
 		function vchanged(){
 			//console.log("val changed")
 		}
+		function newCrement(){
+			console.log("crement changed")
+			sendSchedule();
+		}
 		function sendSchedule(){
 			//console.log(v.value);
+			crement = document.getElementById("crement").value
 			var d = new Date();
 			var d0 = Date.now()+60000
 			var d2 = new Date(d0);
@@ -68,21 +87,33 @@
 			var mi3 = d3.getMinutes();
 			console.log(`${d2} - ${hr}:${mi}`)
 			console.log(`${d3} - ${hr3}:${mi3}`)
-			var thecmd =  "{\"serels\":[0,99,1,2],\"progs\":[[[0,0,80,77],[6,12,82,75],[8,20,85,75],[22,0,78,74],[23,30,85,75]],[[0,0,58],[18,0,68],[21,30,58]],[[0,0,0],["+hr+","+mi+",1],["+hr3+","+mi3+",0]]]}";
+			var thecmd =  "{\"crement\":"+crement+",\"serels\":[0,99,1,2],\"progs\":[[[0,0,80,77],[6,12,82,75],[8,20,85,75],[22,0,78,74],[23,30,85,75]],[[0,0,58],[18,0,68],[21,30,58]],[[0,0,0],["+hr+","+mi+",1],["+hr3+","+mi3+",0]]]}";
 			console.log(thecmd);
 			client.publish(sched, thecmd)			
 		}
 		client.on('connect', function(){
 			console.log('maybe connected')
 			client.subscribe(statu) 
-			client.subscribe("CYURD001/progs")
+			client.subscribe(tmr) 
+			client.subscribe(progs)
 			client.on('message', function(topic, payload) {
 				var pls = payload.toString()
 				var plo = JSON.parse(pls)
 				console.log(plo)
 				console.log('['+topic+'] '+payload.toString())
-				document.getElementById('lue').innerHTML=plo.heat
-				document.getElementById('temp1').innerHTML=plo.temp1
+		    var sp = topic.split("/")
+		    var job = sp[1];	
+		    switch(job){
+		    	case "status":
+						document.getElementById('lue').innerHTML=plo.heat
+						document.getElementById('temp1').innerHTML=plo.temp1
+						break;
+					case "tmr":
+						document.getElementById('timr1').innerHTML=plo.timr1
+						document.getElementById('timr2').innerHTML=plo.timr2
+						document.getElementById('timr3').innerHTML=plo.timr3
+						break;
+		    }			
 			});	
 			client.publish('presence', 'Web Client is alive.. Test Ping! ');
 		});

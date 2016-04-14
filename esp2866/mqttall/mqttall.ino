@@ -26,9 +26,10 @@ Reqs req(devid, client);
 MQclient mq(devid);
 
 int NEW_ALARM = -1;
+int IS_ON = 0;
 STATE st {5, 42, 38, 0, 82, 73, 1, 1, 0};
 //{ALED, temp1, temp2, heat, hilimit, lolimit, AUTOMA, HAY_CNG, NEEDS_RESET}
-TMR tmr {0,0,0,3,15,0};
+TMR tmr {0,0,0,3,5,0};
 //timr1, timr2, timr3, numtmrs, crement, IS_ON
 Sched sched;
 
@@ -71,7 +72,8 @@ void processInc(){
 
           // Alarm.alarmOnce(hour(), minute()+1,0,acb);
           NEW_MAIL=0;
-          NEW_ALARM=12;
+          NEW_ALARM=31;
+          IS_ON=31;
           sched.actProgs2(tmr);
           break;            
         case 2:
@@ -89,16 +91,29 @@ void processInc(){
 }
 
 void publishState(){
-	char astr[120];
-	sprintf(astr, "{\"temp1\":%d, \"temp2\":%d, \"heat\":%d, \"hilimit\":%d, \"lolimit\":%d, \"auto\":%d  }", st.temp1, st.temp2, st.heat, st.hilimit, st.lolimit, st.AUTOMA);
-	char status[20];
-	strcpy(status,devid);
-	strcat(status,"/status");
+  char astr[120];
+  sprintf(astr, "{\"temp1\":%d, \"temp2\":%d, \"heat\":%d, \"hilimit\":%d, \"lolimit\":%d, \"auto\":%d  }", st.temp1, st.temp2, st.heat, st.hilimit, st.lolimit, st.AUTOMA);
+  char status[20];
+  strcpy(status,devid);
+  strcat(status,"/status");
   if (client.connected()){
     client.publish(status, astr, true);
-  }	
+  } 
   Serial.print(status);
-	Serial.println(astr);
+  Serial.println(astr);
+}
+
+void publishTmr(){
+  char astr[120];
+  sprintf(astr, "{\"timr1\":%d, \"timr2\":%d, \"timr3\":%d, \"numtmrs\":%d, \"crement\":%d, \"IS_ON\":%d  }", tmr.timr1, tmr.timr2, tmr.timr3, tmr.numtmrs, tmr.crement, tmr.IS_ON);
+  char status[20];
+  strcpy(status,devid);
+  strcat(status,"/tmr");
+  if (client.connected()){
+    client.publish(status, astr, true);
+  } 
+  // Serial.print(status);
+  // Serial.println(astr);
 }
 
 void readTemps(){
@@ -184,7 +199,10 @@ void loop(){
   inow = millis();
   if(inow-schedcrement > tmr.crement*1000){
     schedcrement = inow;
-    sched.updateTmrs(tmr, client);
+    if(IS_ON > 0){
+      sched.updateTmrs(tmr, client);
+      publishTmr();
+    }
   }
   if (inow - before > 1000) {
   	before = inow;

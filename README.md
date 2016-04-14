@@ -3,6 +3,8 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 35-bitmask-sched-timr
+every time an alararm is done timr2 searches through the schedule until it goes past the current time. Calls that one the current schedule. Gets value from that and sets next alarm 
 ### 34-repeating-alarms
 33-resetAlarms-actProgs was very buggy. Now in the middle of refactoring it, ie it is broken. Watch out and control NEW_ALARM. This is a bitmath version impllemented as `Sched::actProgs2` . Basically once you get to the end of that method NEW_ALARM goes to 0, waiting for the next alarm to go off. You have to wait for the time to be set however otherwise the alarms will be misset and nothing will ever happen. Time is requested at startup and then returns /progs so I wait for that to be done to set NEW_ALARM and actProgs2.
 ### 33-resetAlarms-actProgs

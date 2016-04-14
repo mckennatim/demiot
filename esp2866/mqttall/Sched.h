@@ -10,19 +10,23 @@ void cbtmr1();
 void cbtmr2();
 void cbtemp1();
 void abdd();
+void bm32();
+void bm16();
 void bm8();
 void bm4();
-void bm4();
+void bm2();
 void bm1();
 extern int NEW_ALARM;
+extern int IS_ON;
 
 class Sched{
 public:
 	bool deserialize(char* kstr); 
 	void actTime(STATE& st);
+	void printSched(int i);
 	bool deseriProgs(char* kstr); 
 	void bootstrapSched();
-	void resetAlarm(int i, int &cur);
+	void resetAlarm(int i, int &cur, int &nxt);
 	void actProgs(int idx, int cur, STATE& st, TMR& tmr);
 	void actProgs2(TMR& tmr);
 	int idxOsenrels(int j);
@@ -35,6 +39,7 @@ public:
 	int senrels[8];//[0,99,1]
 	int events[6];
 	int haynRset[8];
+	int crement;
 private:
   time_t unix;
   const char* LLLL;
