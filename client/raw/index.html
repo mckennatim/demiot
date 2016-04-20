@@ -22,8 +22,11 @@
 	<button id="button2" onclick="empty()">empty eeprom</button><br><br>
 	<button id="button3" onclick="devtime()">devtime</button>
 	<button id="button3" onclick="sendSchedule()">send schedule</button><br>
-	with timer2 starting in one min <br> and going for 
-	<input type="text" id="tbox" value=15 size="3" onchange="vchanged()"><br>
+	with timer2 starting in 
+	<input type="text" id="mbox" value=1 size="3" onchange="mchanged()">
+
+	min <br> and going for 
+	<input type="text" id="tbox" value=15 size="3" onchange="vchanged()">minutes<br>
 	<div>
 	Timer display updates every 
 	<input type="text" id="crement" value=5 size="3" onchange="newCrement()">
@@ -42,6 +45,7 @@
 		const sched = deviceId +'/sched'
 		var client = mqtt.connect('ws://10.0.1.104:3333')
 		var v = document.getElementById("tbox")
+		var m = document.getElementById("mbox")
 		var crement=10;
 		//console.log(v.value)
 
@@ -67,6 +71,9 @@
 		function vchanged(){
 			//console.log("val changed")
 		}
+		function mchanged(){
+			console.log("st changed")
+		}
 		function newCrement(){
 			console.log("crement changed")
 			sendSchedule();
@@ -75,11 +82,12 @@
 			//console.log(v.value);
 			crement = document.getElementById("crement").value
 			var d = new Date();
-			var d0 = Date.now()+60000
+			var strtmin = m.value;
+			var d0 = Date.now()+60000*strtmin
 			var d2 = new Date(d0);
 
 			var setmin = v.value
-			var d3 = new Date(d0+ 60000*setmin);
+			var d3 = new Date(d0+ 60000*(setmin));
 			console.log(d);
 			var hr = d2.getHours();
 			var mi = d2.getMinutes();

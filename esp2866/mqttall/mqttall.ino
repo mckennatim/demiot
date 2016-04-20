@@ -1,3 +1,10 @@
+// // #include <Dhcp.h>
+// // #include <Dns.h>
+// #include <Ethernet.h>
+// #include <EthernetClient.h>
+// #include <EthernetServer.h>
+// #include <EthernetUdp.h>
+
 #include "config.h"
 #include <EEPROM.h>
 #include <PubSubClient.h>
@@ -74,6 +81,7 @@ void processInc(){
           NEW_MAIL=0;
           NEW_ALARM=31;
           IS_ON=31;
+          Alarm.clear();
           sched.actProgs2(tmr);
           break;            
         case 2:

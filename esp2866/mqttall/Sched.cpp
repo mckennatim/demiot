@@ -169,7 +169,9 @@ void Sched::actProgs(int idx, int cur, STATE& st, TMR& tmr){
 			Serial.print("setpoint tmr1 is set for: ");
 			Serial.print(progs[ii][cur][0]);
 			Serial.print(":");
-			Serial.println(progs[ii][cur][1]);			
+			Serial.println(progs[ii][cur][1]);	
+			Serial.print("num allocated = ");
+			Serial.println(Alarm.count());		
 			Alarm.alarmOnce(progs[ii][cur][0],progs[ii][cur][1], 0, cbtmr1);
 			break;
 		case 3:
@@ -247,6 +249,8 @@ void Sched::actProgs2(TMR& tmr){
 		Serial.println(minute()+1); 	
 		int dur = 2;
 		tmr.timr1=60*dur;			
+			Serial.print("num allocated = ");
+			Serial.println(Alarm.count());		
 		Alarm.alarmOnce(hour(), minute()+dur,6,bm4);
 	}
 	if((NEW_ALARM & 8) == 8 && senrels[3]<99){
@@ -267,6 +271,8 @@ void Sched::actProgs2(TMR& tmr){
 		Serial.print(progs[ii][cur][1]);	
 		Serial.print("->");
 		Serial.println(progs[ii][cur][2]);				
+			Serial.print("num allocated = ");
+			Serial.println(Alarm.count());		
 		if(progs[ii][cur][2]==1){
 			Serial.print("countdown tmr2 starts at: ");
 			int fhr = progs[ii][cur+1][0];
@@ -306,6 +312,8 @@ void Sched::actProgs2(TMR& tmr){
 		Serial.println(minute()+1); 	
 		int dur = 1; 
 		tmr.timr3=60*dur;	
+			Serial.print("num allocated = ");
+			Serial.println(Alarm.count());		
 		Alarm.alarmOnce(hour(), minute()+dur,12,bm16);
 	}
 	if((NEW_ALARM & 32) == 32){

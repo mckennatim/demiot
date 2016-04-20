@@ -3,6 +3,8 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 36-time-alarms-mod
+Changed the number of timers from default 6 to 12 in `#define dtNBR_ALARMS`. added a method `void TimeAlarms::clear()` in `/Documents/electronics/arduino/libraries/TimeAlarms-tim` to have `Alarm.clear()`called when we `proccessInc`oming progs.
 ### 35-bitmask-sched-timr
 every time an alararm is done timr2 searches through the schedule until it goes past the current time. Calls that one the current schedule. Gets value from that and sets next alarm 
 ### 34-repeating-alarms
