@@ -82,7 +82,7 @@ void processInc(){
           NEW_ALARM=31;
           IS_ON=31;
           Alarm.clear();
-          sched.actProgs2(tmr);
+          sched.actProgs2(tmr, st);
           break;            
         case 2:
           Serial.println("in cmd");
@@ -187,7 +187,7 @@ time_t inow;
 
 void loop(){
   if(NEW_ALARM>0){
-    sched.actProgs2(tmr);
+    sched.actProgs2(tmr, st);
   }
   // if(NEW_ALARM>-1){
   //   int cur = 0;

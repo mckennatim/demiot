@@ -28,7 +28,7 @@ public:
 	void bootstrapSched();
 	void resetAlarm(int i, int &cur, int &nxt);
 	void actProgs(int idx, int cur, STATE& st, TMR& tmr);
-	void actProgs2(TMR& tmr);
+	void actProgs2(TMR& tmr, STATE& st);
 	int idxOsenrels(int j);
 	void updateTmrs(TMR& tmr, PubSubClient& client);
 	//allocate for 8 sensor/relays with 6 scheduled events/day and 

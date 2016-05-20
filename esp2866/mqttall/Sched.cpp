@@ -47,7 +47,8 @@ int Sched::idxOsenrels(int j){
 
 void Sched::printSched(int i){
 	Serial.println(schedArr[idxOsenrels(i)]);
-	// Serial.println(idxOsenrels(i));
+	Serial.print("haynRset=");
+	Serial.println(haynRset[i]);
 	for(int j = 0; j<events[i]; j++){//4
 		for(int k=0; k<haynRset[i]+2;k++){
 			Serial.print(progs[i][j][k]);
@@ -81,7 +82,7 @@ bool Sched::deseriProgs(char* kstr){
 		// Serial.println(idxOsenrels(i));
 		for(int j = 0; j<events[i]; j++){//4
 			int bsz = asnk[j].size();
-			haynRset[j] = bsz-2;
+			haynRset[i] = bsz-2;
 			for(int k=0; k<bsz;k++){
 				progs[i][j][k] = asnk[j][k];
 				Serial.print(progs[i][j][k]);
@@ -136,13 +137,13 @@ void Sched::resetAlarm(int i, int &cur, int &nxt){
 	Serial.print(":");
 	Serial.print(minute());
 	Serial.println();
-	Serial.print("[");
-	Serial.print(progs[idx][cur][0]);
-	Serial.print(":");
-	Serial.print(progs[idx][cur][1]);
-	Serial.print("->");
-	Serial.print(progs[idx][cur][2]);
-	Serial.println("]");
+	// Serial.print("[");
+	// Serial.print(progs[idx][cur][0]);
+	// Serial.print(":");
+	// Serial.print(progs[idx][cur][1]);
+	// Serial.print("->");
+	// Serial.print(progs[idx][cur][2]);
+	// Serial.println("]");
 	//actProgs(i, cur);
 }
 
@@ -218,7 +219,7 @@ void Sched::actProgs(int idx, int cur, STATE& st, TMR& tmr){
 	NEW_ALARM=-1;
 }
 
-void Sched::actProgs2(TMR& tmr){
+void Sched::actProgs2(TMR& tmr, STATE& st){
 	tmr.crement=crement;
 	Serial.print("in actProgs2, NEW_ALARM=");
 	Serial.println(NEW_ALARM);
@@ -228,8 +229,28 @@ void Sched::actProgs2(TMR& tmr){
 		Serial.println(NEW_ALARM);
 		Serial.print(hour());
 		Serial.print(":");
-		Serial.println(minute()+1);
-		//Alarm.alarmOnce(hour(), minute()+1,0,bm1);
+		Serial.println(minute());
+		int i0 = 0;
+		int ii= senrels[i0];
+		int cur = 0;
+		int nxt = 0;
+		resetAlarm(i0,cur, nxt);
+		Serial.print("current: ");
+		Serial.println(cur);
+		Serial.print("next: ");
+		Serial.println(nxt);
+		Serial.print("current alarm is for: ");
+		Serial.print(progs[ii][cur][0]);
+		Serial.print(":");
+		Serial.print(progs[ii][cur][1]);	
+		Serial.print("->");
+		Serial.print(progs[ii][cur][2]);	
+		Serial.print(",");
+		Serial.println(progs[ii][cur][3]);	
+		st.hilimit = progs[ii][cur][2];
+		st.lolimit = progs[ii][cur][3];
+		st.HAY_CNG=1;
+		Alarm.alarmOnce(progs[ii][nxt][0],progs[ii][nxt][1], 0, bm1);
 	}
 	if((NEW_ALARM & 2) == 2){
 		Serial.print("temp2 w mask61 :");

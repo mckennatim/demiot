@@ -1,5 +1,7 @@
-console.log('stuff after ')
+console.log('stuff after  ')
 var Navigo = require('navigo')
+var mqtt = require('mqtt')
+import template from './outempl.html';
 
 var router;
 var routing = function (mode) {
@@ -11,6 +13,7 @@ var routing = function (mode) {
   	},
   	'adj/:id': (params)=>Adj(params.id),
   	'selsen': ()=>Selsen(),
+  	'outempl': ()=>Outtempl()
   })
   router.on(function(){
   	console.log('at /')
@@ -34,7 +37,10 @@ const Selsen = function(){
 	let tstr = generateTemplateString(el('#templ-selsen').innerHTML)
 	let templ = tstr({cat: 'Mabibi'})
 	el('#app').innerHTML =templ
-}
+	el('#toadj').addEventListener('click', function(){
+		console.log('clicked toadj')
+		router.navigate('adj/1');
+	})}
 
 const Reset = function(){
 	let tstr = generateTemplateString(el('#templ-reset').innerHTML)
@@ -45,7 +51,7 @@ const Reset = function(){
 const deviceId ='CYURD001'
 const statu = deviceId+'/status'
 const cmd = deviceId +'/cmd'
-var client = mqtt.connect('ws://10.0.1.104:3333')
+var client = mqtt.connect('ws://10.0.1.100:3333')
 
 var onoff = 1
 function uclicked(){
