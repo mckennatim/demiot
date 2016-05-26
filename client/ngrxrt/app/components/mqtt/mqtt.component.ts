@@ -4,7 +4,9 @@ import {Store} from '@ngrx/store'
 
 @Component({
     selector: 'mqtt',
-    template: `<h3>about Mqtt {{me}} {{frog}} </h3>
+    template: `<h3>about Mqtt {{me}} {{frog}} {{(tmr | async).timr1}}</h3>
+    {{tmr | async |json}} <br />
+		{{status | async |json}} <br />
     <button type="button" (click)="subscribe($event)">Subscribe to WebSocket</button>
     `
 })
@@ -14,20 +16,26 @@ export class MqttComponent implements AfterViewInit, OnDestroy {
 	public frog: string;
 	public client: any; 
 	public deviceId = 'CYURD001';
-	public statu = this.deviceId + '/status';
-	public tmr = this.deviceId + '/tmr';
-	public progs = this.deviceId + '/progs';
+	public statuTopic = this.deviceId + '/status';
+	public tmrTopic = this.deviceId + '/tmr';
+	public progsTopic = this.deviceId + '/progs';
+	public status;
+	public tmr;
 
-	constructor(private _store: Store<any>) {}
+	constructor(private _store: Store<any>) {
+		this.status = _store.select('status')
+		this.tmr = _store.select('tmr')
+		this.frog = "mabibi";
+	}
 	
 	ngAfterViewInit() {
 		var self = this;
 		this.client = mqtt.connect('ws://10.0.1.100:3333')
 		this.client.on('connect', function() {
 			console.log('maybe connected');
-			self.client.subscribe(self.statu)
-			self.client.subscribe(self.tmr)
-			self.client.subscribe(self.progs)
+			self.client.subscribe(self.statuTopic)
+			self.client.subscribe(self.tmrTopic)
+			self.client.subscribe(self.progsTopic)
 			self.client.publish('presence', 'Web Client is alive.. Test Ping! ');
 			self.client.on('message', function(topic, payload) {
 				console.log(topic)
@@ -35,7 +43,7 @@ export class MqttComponent implements AfterViewInit, OnDestroy {
 				// console.log(pls)
 				var plo = JSON.parse(pls)
 				// console.log(plo)
-				self.frog = plo.temp1;
+				//self.frog = plo.temp1;
 				var sp = topic.split("/")
 				var job = sp[1];
 				switch (job) {
@@ -63,3 +71,7 @@ export class MqttComponent implements AfterViewInit, OnDestroy {
 	}
 
 }
+//[CYURD001/progs] {"crement":5,"serels":[0,99,1,2],"progs":[
+//[[0,0,80,77],[6,12,82,75],[8,20,85,78],[16,0,78,74],[16,15,83,79]],
+//[[0,0,58],[18,0,68],[21,30,58]],
+//[[0,0,0],[16,0,1],[16,15,0]]]}

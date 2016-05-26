@@ -1,8 +1,17 @@
 #demiot
 IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt broker and websocket server, and clients of various flavors
-
-
+ 
 ##
+### 40-demo-sensor-timer-feature-summary
+Oh shit what did I build?. What is actually in this demoiot platform and where is it programmed? on the device, on the server, on the raw client? 
+* temp1: is all hooked up with a relay(heat), a hi&lo limit, a min freakin heating system. It runs on a schedule that gets uploaded from /client/raw as the first item in serels[0, 99, 1 ,2]. `raw` jerry-rigs it so it sends a schedule that has the esp8266 change limits starting in 1 minute and changing again 15 minutes after that. It operates from esp8266/sched.cpp/actProgs2 if((NEW_ALARM & 1) == 1) and tells the rest of the system that something happened by changing st.hi/lolimit and raising the HAY_CNG flag.
+* temp2: reports its temperature only. It has no program serels[0, 99, 1 ,2], the 99 tells you so
+* timr1: hard coded in esp8266/sched.cpp/actProgs2 if((NEW_ALARM & 4) == 4){ When true it sets it to false, sets dur=2 (minutes) then when it finishes and the callback `bm4` runs} `bm4` resets the mask so if((NEW_ALARM & 4) is true again which jumps back and resets the timer to 2 minutes again
+* timr2: a programmable timer set by `raw` schedule button to start in a minute and run for 15. esp8266/sched.cpp/actProgs2 if((NEW_ALARM & 8) == 8 && senrels[3]<99) The prog actually tells it to be off at midnight then on and then off but nothing is implemented in the esp8266 to respond to that
+* timr3: just like timr1 but set by esp8266/sched.cpp/actProgs2 if((NEW_ALARM & 16) == 16) to run for 1 minute then repeat
+
+### 39-ngrx-store-select-async-json
+So the asych data comes in on mqtt whenever it feels like and gets shepherded to the store. Meanwhile the container `mqtt.component.js` selects and subscribes to the store Observables `status` and `tmr` making any changes in that data available to any of the dumb components inside the container. NotWorking: <s>{{tmr.timr1 | async}}</s> {{(tmr | async).timr1}}
 ### 38-ngrx-store-dispatch-log
 ng2 client now uses store, dispatching an action whenever `status` or `tmr` changes from mqtt message. The state object get replaced by the incoming message payload. Logging just works using  `ngrx-store-logger`. Back on the cutting edge baby.
 ### 37-ngrxrt
