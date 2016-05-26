@@ -5,6 +5,7 @@ import { provide } from '@angular/core';
 import {provideStore} from '@ngrx/store';
 
 import {AppComponent} from './components/app.component'
+import {MqttComponent} from './components/mqtt/mqtt.component'
 import {HelpComponent} from './components/help/help.component'
 import {AboutComponent} from './components/about/about.component'
 import {CounterComponent} from './components/counter/counter.component.ts'
@@ -22,7 +23,8 @@ const routes: Routes = [
 	{ path: '/about', component: AboutComponent },
 	{ path: '/help', component: HelpComponent },
 	{ path: '/cnt', component:CounterComponent},
-	{ path: '/party', component:PartyComponent}
+	{ path: '/party', component: PartyComponent },
+	{ path: '/mqtt', component: MqttComponent }
 ]
 
 bootstrap(AppComponent, [

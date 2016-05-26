@@ -1,3 +1,5 @@
+now part of demiot
+
 ## Angular2 gradual toolup as needed (webpack) ##
 
 based on (http://www.schempy.com/2016/01/19/angular2_webpack_typescript/) 
@@ -5,7 +7,8 @@ based on (http://www.schempy.com/2016/01/19/angular2_webpack_typescript/)
 
 ==tags==
 ===03====
-cant find Object.assign
+cant find Object.assign => maybe in vendor.ts polyfills
+
 ===02-store-reducer-counter===
 
 ===01-ngrx-hrt-webp===
@@ -31,6 +34,46 @@ but `exclude ['node_modules']` does not
 todo - production build, routes, test, store
 
 ==stackoverflow==
+===getting mqtt to work in angular2===
+Mqtt is a barebones messaging protocol that's starting to get used a lot in IOT. On the leg from the server to the browser it rides on top of Websockets. In a plain javascript app this code works fine
+
+    import * as mqtt from 'mqtt';   
+    var client = mqtt.connect('ws://10.0.1.100:3333')
+    client.on('connect', function() {
+      console.log('maybe connected up here')
+      client.subscribe(statu)      
+      client.publish('presence', 'Web Client is alive.. Test Ping! ');
+    })
+
+on the server showing:
+
+    Pkt $SYS/ryFCT62G/new/clients mqttjs_d3e6bb51
+    Pkt presence Web Client is alive.. Test Ping!    
+
+When I try to use this in an angular2 app with some variation of the following...
+
+    export class MqttComponent {
+      public client: any; 
+      public deviceId = 'CYURD001';
+      public statu = this.deviceId + '/status';
+      constructor(){
+        console.log(this.client)
+        var self = this;
+        this.client = mqtt.connect('ws://10.0.1.100:3333')
+        this.client.on('connect', function(){
+          console.log('maybe connected');
+          self.client.subscribe(this.statu)
+          self.client.publish('presence', 'Web Client is alive.. Test Ping! ');
+        });
+      }
+
+It connect but after about 5 seconds it disconnects. This code gives me browser_adapter errors `Cannot convert undefined or null to object`. Moving `mqtt.connect` outside the class causes the same error from `zone.js:260`. Both seem to come from ZoneTask.invoke.
+
+How can I use an outside library with an async protocol in angular2?
+
+====answer====
+I'm takin the dog dumbass. `self.client.subscribe(this.statu)` should be `self.client.subscribe(self.statu)`
+
 ===getting a super simple webpack ng2 starter to work===
 
 I appreciate all the work that has gone into webpack-starter but my mind needs something simpler. This was how I got started with webpack using react and redux. I want to build slowly from the basics.

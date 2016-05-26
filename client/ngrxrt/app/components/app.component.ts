@@ -9,6 +9,7 @@ import { Component, OnInit } from '@angular/core';
 			  <a linkTo="/about">About</a>
 			  <a linkTo="/cnt">Count</a>
 			  <a linkTo="/party">Party</a>
+			  <a linkTo="/mqtt">Mqtt</a>
 			</nav>
 			<route-view></route-view>
     `,
