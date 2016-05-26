@@ -2,7 +2,8 @@ import {bootstrap}    from '@angular/platform-browser-dynamic'
 import { provideRouter, Routes } from '@ngrx/router';
 import { LocationStrategy,HashLocationStrategy } from '@angular/common';
 import { provide } from '@angular/core';
-import {provideStore} from '@ngrx/store';
+import {provideStore, combineReducers} from '@ngrx/store';
+import {storeLogger} from "ngrx-store-logger";
 
 import {AppComponent} from './components/app.component'
 import {MqttComponent} from './components/mqtt/mqtt.component'
@@ -15,6 +16,8 @@ import {PartyComponent} from './components/party/party.component';
 import {counter} from './reducers/counter';
 import {people} from './reducers/people';
 import {filter} from './reducers/filter';
+import {tmr} from './reducers/tmr';
+import {status} from './reducers/status';
 
 
 
@@ -30,7 +33,7 @@ const routes: Routes = [
 bootstrap(AppComponent, [
 	provideRouter(routes),
 	provide(LocationStrategy, { useClass: HashLocationStrategy }),
-	provideStore({ counter, people, filter }, { counter: 0})
+	provideStore(storeLogger()(combineReducers({ counter, people, filter, tmr, status })))
 ]);
 // bootstrap(AppComponent, [
 // 	provideRouter(routes)

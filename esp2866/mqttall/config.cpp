@@ -75,6 +75,7 @@ void handleRoot(){
   server.send(200, "text/html", ssids);
 }
 //http://192.168.4.1/config?ssid=street_no_vale2&pwd=jjjjjjjj&devid=CYURD001&ip=10.0.1.104&port=3332
+//http://192.168.4.1/config?ssid=Uli Fence&pwd=jjjjjjjj&devid=CYURD001&ip=10.0.1.100&port=3332
 void handleConfig(){
   strcpy(ssid, server.arg("ssid").c_str());
   strcpy(pwd, server.arg("pwd").c_str());

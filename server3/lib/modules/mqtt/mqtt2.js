@@ -7,7 +7,7 @@ var sched =require('../schedule/schedutil')
 var pubsubsettings = {
   //using ascoltatore
   type: 'mongo',        
-  url: 'mongodb://localhost:27017/mqtt',
+  url: 'mongodb://127.0.0.1:27017/mqtt',
   pubsubCollection: 'ascoltatori',
   mongo: {}
 };

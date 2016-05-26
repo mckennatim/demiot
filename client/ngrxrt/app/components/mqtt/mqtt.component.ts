@@ -1,5 +1,6 @@
 import {Component, OnInit, AfterViewInit, OnDestroy} from '@angular/core';
 import * as mqtt from 'mqtt';
+import {Store} from '@ngrx/store'
 
 @Component({
     selector: 'mqtt',
@@ -16,6 +17,8 @@ export class MqttComponent implements AfterViewInit, OnDestroy {
 	public statu = this.deviceId + '/status';
 	public tmr = this.deviceId + '/tmr';
 	public progs = this.deviceId + '/progs';
+
+	constructor(private _store: Store<any>) {}
 	
 	ngAfterViewInit() {
 		var self = this;
@@ -29,10 +32,20 @@ export class MqttComponent implements AfterViewInit, OnDestroy {
 			self.client.on('message', function(topic, payload) {
 				console.log(topic)
 				var pls = payload.toString()
-				console.log(pls)
+				// console.log(pls)
 				var plo = JSON.parse(pls)
-				console.log(plo)
+				// console.log(plo)
 				self.frog = plo.temp1;
+				var sp = topic.split("/")
+				var job = sp[1];
+				switch (job) {
+					case "status":
+						self._store.dispatch({ type: "UPDATE_STATUS", payload: plo })
+						break;
+					case "tmr":
+						self._store.dispatch({type: "UPDATE_TMR", payload: plo})
+						break;
+				}						
 			})
 		});
 	}

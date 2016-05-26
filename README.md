@@ -3,6 +3,10 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
 
 
 ##
+### 38-ngrx-store-dispatch-log
+ng2 client now uses store, dispatching an action whenever `status` or `tmr` changes from mqtt message. The state object get replaced by the incoming message payload. Logging just works using  `ngrx-store-logger`. Back on the cutting edge baby.
+### 37-ngrxrt
+Added an angular2 client with @ngrx routing
 ### 36-time-alarms-mod
 Changed the number of timers from default 6 to 12 in `#define dtNBR_ALARMS`. added a method `void TimeAlarms::clear()` in `/Documents/electronics/arduino/libraries/TimeAlarms-tim` to have `Alarm.clear()`called when we `proccessInc`oming progs.
 ### 35-bitmask-sched-timr

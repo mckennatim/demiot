@@ -2,6 +2,9 @@
 
 char newip[] ="10.0.1.100";
 char newdevid[] = "CYURD001";
+char newssid[] = "Uli Fence";
+char newport[] = "3332";
+char newpwd[] = "jjjjjjjj";
 
 uint8_t idx[5];
 char ssid[40];
@@ -68,11 +71,11 @@ uint8_t saveCfg(char cf[], uint8_t start)
 
 void saveConfig(){
   for (int i = 0; i < 100; ++i) { EEPROM.write(i, 0); }
-  idx[0]=saveCfg(ssid, 5);
-  idx[1]=saveCfg(pwd, idx[0]);
+  idx[0]=saveCfg(newssid, 5);
+  idx[1]=saveCfg(newpwd, idx[0]);
   idx[2]=saveCfg(newdevid, idx[1]);
   idx[3]=saveCfg(newip, idx[2]);
-  idx[4]=saveCfg(port, idx[3]);
+  idx[4]=saveCfg(newport, idx[3]);
   for (int i = 0; i < 5; ++i) { 
     EEPROM.write(i, idx[i]); 
   }
