@@ -16,8 +16,7 @@ import {PartyComponent} from './components/party/party.component';
 import {counter} from './reducers/counter';
 import {people} from './reducers/people';
 import {filter} from './reducers/filter';
-import {tmr} from './reducers/tmr';
-import {status} from './reducers/status';
+import {mqtt} from './reducers/mqtt';
 
 
 
@@ -33,7 +32,7 @@ const routes: Routes = [
 bootstrap(AppComponent, [
 	provideRouter(routes),
 	provide(LocationStrategy, { useClass: HashLocationStrategy }),
-	provideStore(storeLogger()(combineReducers({ counter, people, filter, tmr, status })))
+	provideStore(storeLogger()(combineReducers({ counter, people, filter, mqtt })))
 ]);
 // bootstrap(AppComponent, [
 // 	provideRouter(routes)

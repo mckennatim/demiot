@@ -1,6 +1,7 @@
 #include <EEPROM.h>
 
-char newip[] ="10.0.1.100";
+//char newip[] ="10.0.1.100";
+char newip[] ="162.217.250.109";
 char newdevid[] = "CYURD001";
 char newssid[] = "Uli Fence";
 char newport[] = "3332";

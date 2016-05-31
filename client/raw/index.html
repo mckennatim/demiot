@@ -42,8 +42,10 @@
 		const progs = deviceId+'/progs'
 		const cmd = deviceId +'/cmd'
 		const devt = deviceId +'/time'
+		const devtim = deviceId +'/devtime'
 		const sched = deviceId +'/sched'
-		var client = mqtt.connect('ws://10.0.1.100:3333')
+		//var client = mqtt.connect('ws://10.0.1.100:3333')
+		var client = mqtt.connect('ws://162.217.250.109:3333')
 		var v = document.getElementById("tbox")
 		var m = document.getElementById("mbox")
 		var crement=10;
@@ -95,12 +97,13 @@
 			var mi3 = d3.getMinutes();
 			console.log(`${d2} - ${hr}:${mi}`)
 			console.log(`${d3} - ${hr3}:${mi3}`)
-			var thecmd =  "{\"crement\":"+crement+",\"serels\":[0,99,1,2],\"progs\":[[[0,0,80,77],[6,12,82,75],[8,20,85,78],["+hr+","+mi+",78,74],["+hr3+","+mi3+",83,79]],[[0,0,58],[18,0,68],[21,30,58]],[[0,0,0],["+hr+","+mi+",1],["+hr3+","+mi3+",0]]]}";
+			var thecmd =  "{\"crement\":"+crement+",\"serels\":[0,99,1,2,99],\"progs\":[[[0,0,80,77],[6,12,82,75],[8,20,85,78],["+hr+","+mi+",78,74],["+hr3+","+mi3+",83,79]],[[0,0,58],[18,0,68],[21,30,58]],[[0,0,0],["+hr+","+mi+",1],["+hr3+","+mi3+",0]]]}";
 			console.log(thecmd);
 			client.publish(sched, thecmd)			
 		}
 		client.on('connect', function(){
 			console.log('maybe connected')
+			client.subscribe(devtim)
 			client.subscribe(statu) 
 			client.subscribe(tmr) 
 			client.subscribe(progs)

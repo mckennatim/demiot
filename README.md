@@ -1,9 +1,27 @@
 #demiot
 IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt broker and websocket server, and clients of various flavors
  
+ 
 ##
+### 41-move-server3-to-cloud
+to Sitebuilt.net 162.217.250.109 /var/www/demiot/server3. Running in forever
+
+    [
+    ...
+      {
+        //demiot exp:3332, ws:3333, mqtt:1883
+        "uid": "demiot",
+        "append": true,
+        "watch": true,
+        "script": "index.js",
+        "sourceDir": "/var/www/demiot/server3/lib"
+      }
+    ]
+
+logging at `tail -f /root/.forever/demiot.log`
+
 ### 40-demo-sensor-timer-feature-summary
-Oh shit what did I build?. What is actually in this demoiot platform and where is it programmed? on the device, on the server, on the raw client? 
+Oh shit what did I build?. What is actually in this demoiot platform and where is it programmed? on the device, on the server, on the raw client? Here are its modules.
 * temp1: is all hooked up with a relay(heat), a hi&lo limit, a min freakin heating system. It runs on a schedule that gets uploaded from /client/raw as the first item in serels[0, 99, 1 ,2]. `raw` jerry-rigs it so it sends a schedule that has the esp8266 change limits starting in 1 minute and changing again 15 minutes after that. It operates from esp8266/sched.cpp/actProgs2 if((NEW_ALARM & 1) == 1) and tells the rest of the system that something happened by changing st.hi/lolimit and raising the HAY_CNG flag.
 * temp2: reports its temperature only. It has no program serels[0, 99, 1 ,2], the 99 tells you so
 * timr1: hard coded in esp8266/sched.cpp/actProgs2 if((NEW_ALARM & 4) == 4){ When true it sets it to false, sets dur=2 (minutes) then when it finishes and the callback `bm4` runs} `bm4` resets the mask so if((NEW_ALARM & 4) is true again which jumps back and resets the timer to 2 minutes again
