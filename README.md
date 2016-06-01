@@ -3,6 +3,8 @@ IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt b
  
  
 ##
+### 42-routeParams
+basic route params works. Now I need to tie it in to a store observable
 ### 41-move-server3-to-cloud
 to Sitebuilt.net 162.217.250.109 /var/www/demiot/server3. Running in forever
 

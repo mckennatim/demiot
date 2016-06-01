@@ -1,5 +1,5 @@
 let initialState = {
-	devices: ["temp1", "temp2", "timr1", "timr2", "timr3"],
+	subsys: ["temp1", "temp2", "timr1", "timr2", "timr3"],
 	temp1: { name: "temp1", val: 0 },
 	temp2: { name: "temp2", val: 0 },
 	timr1: { name: "timr1", val: 0 },
@@ -24,9 +24,9 @@ export const mqtt = (state = initialState, action) => {
 			let stst = Object.assign({},state)
 			stst.temp1.val = action.payload.temp1
 			stst.temp2.val = action.payload.temp2
-			stst.temp1.setting.state = action.payload.heat
-			stst.temp1.setting.hilimit = action.payload.hilimit
-			stst.temp1.setting.lolimit = action.payload.lolimit
+			stst.temp1.state = action.payload.heat
+			stst.temp1.hilimit = action.payload.hilimit
+			stst.temp1.lolimit = action.payload.lolimit
 			stst.general.auto = action.payload.auto
 			return stst
 		case "UPDATE_TMR":
@@ -39,6 +39,9 @@ export const mqtt = (state = initialState, action) => {
 			return tmst
 		case "UPDATE_PROGS":
 			let prst = Object.assign({}, state)
+			prst.progs = action.payload.progs
+			prst.serels = action.payload.serels;
+			prst.general.crement = action.payload.crement
 			return prst
 		default:
 			return state	

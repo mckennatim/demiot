@@ -6,11 +6,13 @@ import {provideStore, combineReducers} from '@ngrx/store';
 import {storeLogger} from "ngrx-store-logger";
 
 import {AppComponent} from './components/app.component'
-import {MqttComponent} from './components/mqtt/mqtt.component'
 import {HelpComponent} from './components/help/help.component'
 import {AboutComponent} from './components/about/about.component'
 import {CounterComponent} from './components/counter/counter.component.ts'
 import {PartyComponent} from './components/party/party.component';
+import {MqttComponent} from './components/mqtt/mqtt.component'
+import {ValComponent} from './components/mqtt/val.component';
+import {AvalComponent} from './components/mqtt/aval.component';
 
 
 import {counter} from './reducers/counter';
@@ -22,11 +24,17 @@ import {mqtt} from './reducers/mqtt';
 
 const routes: Routes = [
 	{ path: '/', component: AboutComponent },
-	{ path: '/about', component: AboutComponent },
+	{ path: '/about', component: AboutComponent, children: [
+		{ path: ':id', component: AvalComponent }
+	]},
 	{ path: '/help', component: HelpComponent },
 	{ path: '/cnt', component:CounterComponent},
 	{ path: '/party', component: PartyComponent },
-	{ path: '/mqtt', component: MqttComponent }
+	{ path: '/mqtt', component: MqttComponent, children: [
+		{ path: '/subsys', component: ValComponent, children: [
+			{ path: ':id', component: AvalComponent}
+		] }
+	] }
 ]
 
 bootstrap(AppComponent, [

@@ -4,11 +4,12 @@ import {Store} from '@ngrx/store'
 
 @Component({
     selector: 'mqtt',
-    template: `<h3>about Mqtt {{me}} {{frog}} {{(tmr | async).timr1}}</h3>
-    {{tmr | async |json}} <br />
-		{{status | async |json}} <br />
-    <button type="button" (click)="subscribe($event)">Subscribe to WebSocket</button>
-    `
+    template: `
+	    <h3>about Mqtt {{me}} {{frog}} {{(mqtt | async).timr1.val}}</h3>
+	    {{mqtt | async |json}} <br />
+	    <button type="button" (click)="subscribe($event)">Subscribe to WebSocket</button>
+			<route-view></route-view>    
+	`
 })
 
 export class MqttComponent implements AfterViewInit, OnDestroy {
@@ -19,18 +20,18 @@ export class MqttComponent implements AfterViewInit, OnDestroy {
 	public statuTopic = this.deviceId + '/status';
 	public tmrTopic = this.deviceId + '/tmr';
 	public progsTopic = this.deviceId + '/progs';
-	public status;
-	public tmr;
+	public mqtt;
 
 	constructor(private _store: Store<any>) {
-		this.status = _store.select('status')
-		this.tmr = _store.select('tmr')
+		this.mqtt = _store.select('mqtt')
 		this.frog = "mabibi";
+		console.log("whaaaaat")
 	}
 	
 	ngAfterViewInit() {
 		var self = this;
-		this.client = mqtt.connect('ws://10.0.1.100:3333')
+		//this.client = mqtt.connect('ws://10.0.1.100:3333')
+		this.client = mqtt.connect('ws://162.217.250.109:3333')
 		this.client.on('connect', function() {
 			console.log('maybe connected');
 			self.client.subscribe(self.statuTopic)
@@ -51,7 +52,10 @@ export class MqttComponent implements AfterViewInit, OnDestroy {
 						self._store.dispatch({ type: "UPDATE_STATUS", payload: plo })
 						break;
 					case "tmr":
-						self._store.dispatch({type: "UPDATE_TMR", payload: plo})
+						self._store.dispatch({ type: "UPDATE_TMR", payload: plo })
+						break;
+					case "progs":
+						self._store.dispatch({ type: "UPDATE_PROGS", payload: plo })
 						break;
 				}						
 			})
