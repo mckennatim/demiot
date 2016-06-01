@@ -40,7 +40,8 @@ const routes: Routes = [
 bootstrap(AppComponent, [
 	provideRouter(routes),
 	provide(LocationStrategy, { useClass: HashLocationStrategy }),
-	provideStore(storeLogger()(combineReducers({ counter, people, filter, mqtt })))
+	//provideStore(storeLogger()(combineReducers({ counter, people, filter, mqtt })))
+	provideStore((combineReducers({ counter, people, filter, mqtt })))
 ]);
 // bootstrap(AppComponent, [
 // 	provideRouter(routes)

@@ -2,7 +2,35 @@
 IOT demo project using Wemos ESP8266 running MQTT, a node express server, mqqt broker and websocket server, and clients of various flavors
  
  
-##
+## 
+### 43-switchMap-param-to-store
+Why does not changing a param cause a page refresh?
+
+`http://localhost:6100/#/mqtt/subsys/tem3 ` will produce and output of `tem3 aval component` and I can type `tem4` in the url bar and it will update without a refresh but if I retype `tem3` again instead then a refresh happens. 
+
+    import {Component} from '@angular/core';
+    import { RouteParams } from '@ngrx/router';
+    import { Observable } from 'rxjs/Observable';
+    import {Store} from '@ngrx/store';
+    @Component({
+        selector: 'aval',
+        template: `<h3>{{ (id$ | async).name }}: {{ (id$ | async).val }} {{me}}</h3>
+        <route-view></route-view>`
+    })
+    export class AvalComponent {
+      public me: string = "aval component";
+      id$: Observable<any>; 
+      id: string;
+      constructor(routeParams$: RouteParams, private _store: Store<any>) {
+        this.id$= routeParams$
+          .pluck('id')
+          .switchMap(id => _store.select(s => s.mqtt[id.toString()]))
+      }
+    }
+
+Uses the param to filter the store.
+
+
 ### 42-routeParams
 basic route params works. Now I need to tie it in to a store observable
 ### 41-move-server3-to-cloud
